@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "ASE3 Agente TDAH",
+    "slug": "ase3-agente-tdah",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.ase3.agentetdah",
+      "permissions": ["ACCESS_NOTIFICATION_POLICY"]
+    },
+    "ios": {
+      "bundleIdentifier": "com.ase3.agentetdah"
+    }
+  }
+}

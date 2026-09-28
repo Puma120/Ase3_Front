@@ -1,0 +1,12 @@
+{
+  "name": "ase3-front",
+  "private": true,
+  "workspaces": [
+    "mobile",
+    "pwa"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=mobile",
+    "pwa": "npm run dev --workspace=pwa"
+  }
+}
