@@ -70,7 +70,7 @@ export function AuthScreen() {
       />
       <ScreenContainer.Spacer size="sm" />
       <TextField
-        label="Contrasena"
+        label="Contraseña"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
