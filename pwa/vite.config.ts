@@ -10,4 +10,13 @@ export default defineConfig({
   resolve: {
     alias: [{ find: /^react-native$/, replacement: "react-native-web" }],
   },
+  // apiClient.ts (compartido con front/mobile) lee process.env.EXPO_PUBLIC_GATEWAY_URL.
+  // En Vite no existe process.env, asi que lo inyectamos en build time desde VITE_GATEWAY_URL
+  // (variable de entorno de Vercel) sin tocar el codigo compartido con Expo.
+  define: {
+    "typeof process": JSON.stringify("object"),
+    "process.env.EXPO_PUBLIC_GATEWAY_URL": JSON.stringify(
+      process.env.VITE_GATEWAY_URL ?? "",
+    ),
+  },
 });
