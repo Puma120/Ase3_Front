@@ -4,23 +4,22 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { ChatScreen } from "./ChatScreen";
 import { SettingsScreen } from "./SettingsScreen";
+import { HomeDashboard } from "./HomeDashboard";
 import { colors, fontSize, minTouchTarget, spacing } from "../theme/tokens";
 
-type Tab = "chat" | "settings";
+type Tab = "home" | "chat" | "settings";
 
-// Shell con dos pestanas nada mas (Chat / Ajustes) - no se agrega
-// react-navigation para dos pantallas, una barra simple basta y evita una
-// dependencia no pedida.
 export function HomeScreen() {
-  const [tab, setTab] = useState<Tab>("chat");
+  const [tab, setTab] = useState<Tab>("home");
 
   return (
     <View style={styles.flex}>
       <View style={styles.content}>
-        {tab === "chat" ? <ChatScreen /> : <SettingsScreen />}
+        {tab === "home" ? <HomeDashboard /> : tab === "chat" ? <ChatScreen /> : <SettingsScreen />}
       </View>
 
       <View style={styles.tabBar}>
+        <TabButton label="Inicio" active={tab === "home"} onPress={() => setTab("home")} />
         <TabButton label="Chat" active={tab === "chat"} onPress={() => setTab("chat")} />
         <TabButton
           label="Ajustes"
