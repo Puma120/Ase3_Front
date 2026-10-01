@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { apiFetch, ApiError } from "../services/apiClient";
-import { isLoggedIn } from "../services/session";
 import { colors, fontSize, minTouchTarget, radius, spacing } from "../theme/tokens";
 
 type FreeSlot = {
@@ -19,13 +18,14 @@ type FreeSlotsRequest = {
 // Dashboard v2 (real): muestra huecos libres consultando el calendario.
 // Esto cumple el caso "A" (sin endpoint para listar tareas creadas) y se
 // alinea con /tools/calendar/free-slots.
-export function HomeDashboard() {
+export function HomeDashboard({
+  onQuickAction,
+}: {
+  onQuickAction: (prompt: string) => void;
+}) {
   const [slots, setSlots] = useState<FreeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const now = useMemo(() => new Date(), []);
-  const tzOffsetMinutes = now.getTimezoneOffset();
 
   useEffect(() => {
     // No hacemos timezone math complejo: el backend usa timezone en
@@ -103,29 +103,27 @@ export function HomeDashboard() {
 
         <QuickAction
           label="Dividir tarea"
-          onPress={() => {
-            // V1 del dashboard: solo guía al chat con un mensaje sugerido.
-            // El chat ya hace el resto vía /agent/chat.
-            const token = getToken();
-            if (!token || !isLoggedIn()) return;
-            // No metemos navegación extra: dejamos el trigger para que el
-            // usuario cambie a "Chat" usando la tab bar.
-          }}
+          onPress={() =>
+            onQuickAction(
+              "Ayúdame a dividir una tarea grande en subtareas accionables para evitar la parálisis por análisis. Empieza preguntándome qué tarea es y cuánto tiempo toma."
+            )
+          }
         />
         <QuickAction
           label="Poner alarma"
-          onPress={() => {
-            // En prototipo: la alarma real se hace desde el agente/tool.
-            // Aquí dejamos el placeholder visual; la lógica completa requiere
-            // integrar navegación/acciones cruzadas.
-          }}
+          onPress={() =>
+            onQuickAction(
+              "Quiero poner una alarma para mi siguiente evento. Pregúntame qué evento es y a qué hora quiero empezar a prepararme."
+            )
+          }
         />
         <QuickAction
           label="Modo enfoque"
-          onPress={() => {
-            // Misma consideración: la acción real la ejecuta front/mobile vía
-            // comandos del agente (device_tool).
-          }}
+          onPress={() =>
+            onQuickAction(
+              "Quiero activar el modo de enfoque (No Molestar) para un periodo. Pregúntame duración y horario, y confirma antes de activarlo."
+            )
+          }
         />
       </View>
 

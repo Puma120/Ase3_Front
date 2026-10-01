@@ -4,7 +4,7 @@
 
 import { getToken } from "./authStore";
 
-const GATEWAY_URL =
+export const GATEWAY_URL =
   (typeof process !== "undefined" ? process.env.EXPO_PUBLIC_GATEWAY_URL : undefined) ??
   "http://localhost:8000";
 

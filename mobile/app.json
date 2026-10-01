@@ -3,6 +3,7 @@
     "name": "ASE3 Agente TDAH",
     "slug": "ase3-agente-tdah",
     "version": "0.1.0",
+    "scheme": "ase3agentetdah",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "android": {

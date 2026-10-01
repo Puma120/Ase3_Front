@@ -11,11 +11,28 @@ type Tab = "home" | "chat" | "settings";
 
 export function HomeScreen() {
   const [tab, setTab] = useState<Tab>("home");
+  const [chatPrefillMessage, setChatPrefillMessage] = useState<string>("");
+  const [chatPrefillNonce, setChatPrefillNonce] = useState<number>(0);
+
+  function handleQuickAction(prompt: string) {
+    setChatPrefillMessage(prompt);
+    setChatPrefillNonce((n) => n + 1);
+    setTab("chat");
+  }
 
   return (
     <View style={styles.flex}>
       <View style={styles.content}>
-        {tab === "home" ? <HomeDashboard /> : tab === "chat" ? <ChatScreen /> : <SettingsScreen />}
+        {tab === "home" ? (
+          <HomeDashboard onQuickAction={handleQuickAction} />
+        ) : tab === "chat" ? (
+          <ChatScreen
+            prefillMessage={chatPrefillMessage}
+            prefillNonce={chatPrefillNonce}
+          />
+        ) : (
+          <SettingsScreen />
+        )}
       </View>
 
       <View style={styles.tabBar}>

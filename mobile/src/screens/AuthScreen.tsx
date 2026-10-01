@@ -7,6 +7,7 @@ import { TextField } from "../components/TextField";
 import { ApiError } from "../services/apiClient";
 import { login, register } from "../services/authApi";
 import { setToken } from "../services/authStore";
+import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
 import { colors, fontSize, spacing } from "../theme/tokens";
 
@@ -20,6 +21,7 @@ export function AuthScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const isRegister = mode === "register";
 
@@ -37,6 +39,24 @@ export function AuthScreen() {
       setError(err instanceof ApiError ? err.message : "No se pudo conectar con el servidor");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      const token = await startGoogleLogin();
+      // En web la pagina navega fuera antes de llegar aqui; en nativo vuelve
+      // con el token ya extraido (o null si el usuario cancelo).
+      if (token) {
+        setToken(token);
+        setLoggedIn(true);
+      }
+    } catch {
+      setError("No se pudo iniciar sesion con Google");
+    } finally {
+      setGoogleLoading(false);
     }
   }
 
@@ -101,6 +121,15 @@ export function AuthScreen() {
           setError("");
           setMode(isRegister ? "login" : "register");
         }}
+      />
+
+      <ScreenContainer.Spacer size="sm" />
+
+      <Button
+        variant="secondary"
+        label="Continuar con Google"
+        onPress={handleGoogleLogin}
+        loading={googleLoading}
       />
     </ScreenContainer>
   );

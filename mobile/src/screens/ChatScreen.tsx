@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react"
 import {
   ActivityIndicator,
   FlatList,
@@ -27,7 +27,13 @@ let nextId = 0;
 // del PDF - interfaz para organizar actividades por conversacion). Una sola
 // lista, un solo input, una sola accion a la vez - sin menus ni tabs que
 // distraigan.
-export function ChatScreen() {
+export function ChatScreen({
+  prefillMessage,
+  prefillNonce,
+}: {
+  prefillMessage: string;
+  prefillNonce: number;
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -36,6 +42,12 @@ export function ChatScreen() {
     },
   ]);
   const [draft, setDraft] = useState("");
+
+  useEffect(() => {
+    if (!prefillMessage) return;
+    setDraft(prefillMessage);
+    setError("");
+  }, [prefillMessage, prefillNonce]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 

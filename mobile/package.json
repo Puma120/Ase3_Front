@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "expo": "^57.0.25",
+    "expo-web-browser": "^57.0.3",
     "react": "19.3.0",
     "react-native": "0.86.3"
   },
