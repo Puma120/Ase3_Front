@@ -15,6 +15,11 @@ export async function getSettings(): Promise<UserSettings> {
   return apiFetch<UserSettings>("/auth/users/me/settings");
 }
 
+export async function getGoogleStatus(): Promise<boolean> {
+  const { connected } = await apiFetch<{ connected: boolean }>("/auth/users/me/google-status");
+  return connected;
+}
+
 export async function updateSettings(
   patch: Partial<UserSettings>,
 ): Promise<UserSettings> {

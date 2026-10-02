@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f1115" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Agente TDAH</title>
     <style>
@@ -11,7 +13,10 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: #0f1115;
+        background-color: #f4f5f8;
+      }
+      @media (prefers-color-scheme: dark) {
+        html, body, #root { background-color: #0f1115; }
       }
       #root {
         display: flex;

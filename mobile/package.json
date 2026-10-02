@@ -12,7 +12,8 @@
     "expo": "^57.0.25",
     "expo-web-browser": "^57.0.3",
     "react": "19.3.0",
-    "react-native": "0.86.3"
+    "react-native": "0.86.3",
+    "react-native-svg": "15.15.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

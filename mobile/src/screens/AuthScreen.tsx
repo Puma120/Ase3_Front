@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { Text, View } from "react-native";
 
 import { Button } from "../components/Button";
+import { Icon } from "../components/Icon";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { TextField } from "../components/TextField";
 import { ApiError } from "../services/apiClient";
@@ -9,12 +10,34 @@ import { login, register } from "../services/authApi";
 import { setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
-import { colors, fontSize, spacing } from "../theme/tokens";
+import { fontSize, radius, spacing } from "../theme/tokens";
+import { useStyles, useTheme } from "../theme/useTheme";
 
 // Pantalla unica para login/registro (un toggle, no dos pantallas separadas)
 // - menos navegacion que recordar. Un solo error visible a la vez, mensaje
 // concreto (Objetivo 3 del PDF: reducir errores de navegacion por sesion).
 export function AuthScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles((c) => ({
+    logo: {
+      alignSelf: "center",
+      width: 56,
+      height: 56,
+      borderRadius: radius.lg,
+      backgroundColor: c.primarySoft,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: spacing.md,
+    },
+    title: { color: c.text, fontSize: fontSize.xl, fontWeight: "700", textAlign: "center" },
+    subtitle: {
+      color: c.textMuted,
+      fontSize: fontSize.md,
+      textAlign: "center",
+      marginTop: spacing.xs,
+    },
+    error: { color: c.danger, fontSize: fontSize.sm, textAlign: "center" },
+  }));
   const [mode, setMode] = useState<"login" | "register">("login");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -62,7 +85,12 @@ export function AuthScreen() {
 
   return (
     <ScreenContainer center>
-      <Text style={styles.title}>Agente TDAH</Text>
+      <View style={styles.logo}>
+        <Icon name="sparkles" size={28} color={colors.primary} />
+      </View>
+      <Text accessibilityRole="header" style={styles.title}>
+        Agente TDAH
+      </Text>
       <Text style={styles.subtitle}>
         {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesion para continuar"}
       </Text>
@@ -134,23 +162,3 @@ export function AuthScreen() {
     </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    color: colors.text,
-    fontSize: fontSize.xl,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  subtitle: {
-    color: colors.textMuted,
-    fontSize: fontSize.md,
-    textAlign: "center",
-    marginTop: spacing.xs,
-  },
-  error: {
-    color: colors.danger,
-    fontSize: fontSize.sm,
-    textAlign: "center",
-  },
-});

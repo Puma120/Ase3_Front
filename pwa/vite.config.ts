@@ -26,6 +26,14 @@ export default defineConfig(({ mode }) => {
             new URL("./src/stubs/expo-web-browser.ts", import.meta.url),
           ),
         },
+        // react-native-svg (components/Icon.tsx) usa modulos nativos; en web se
+        // sustituye por elementos SVG del DOM.
+        {
+          find: /^react-native-svg$/,
+          replacement: fileURLToPath(
+            new URL("./src/stubs/react-native-svg.tsx", import.meta.url),
+          ),
+        },
       ],
     },
     // apiClient.ts (compartido con front/mobile) lee process.env.EXPO_PUBLIC_GATEWAY_URL.
