@@ -4,18 +4,14 @@ import { Text, View } from "react-native";
 import { Button } from "../components/Button";
 import { Icon } from "../components/Icon";
 import { ScreenContainer } from "../components/ScreenContainer";
-import { TextField } from "../components/TextField";
-import { ApiError } from "../services/apiClient";
-import { login, register } from "../services/authApi";
 import { setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
 import { fontSize, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 
-// Pantalla unica para login/registro (un toggle, no dos pantallas separadas)
-// - menos navegacion que recordar. Un solo error visible a la vez, mensaje
-// concreto (Objetivo 3 del PDF: reducir errores de navegacion por sesion).
+// Login solo con Google. El acceso por invitacion lo controla la lista de
+// usuarios de prueba del OAuth en Google Cloud.
 export function AuthScreen() {
   const { colors } = useTheme();
   const styles = useStyles((c) => ({
@@ -38,32 +34,8 @@ export function AuthScreen() {
     },
     error: { color: c.danger, fontSize: fontSize.sm, textAlign: "center" },
   }));
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-
-  const isRegister = mode === "register";
-
-  async function handleSubmit() {
-    setError("");
-    setLoading(true);
-    try {
-      if (isRegister) {
-        await register(email.trim(), fullName.trim(), password);
-      }
-      const token = await login(email.trim(), password);
-      setToken(token);
-      setLoggedIn(true);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo conectar con el servidor");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleGoogleLogin() {
     setError("");
@@ -91,74 +63,20 @@ export function AuthScreen() {
       <Text accessibilityRole="header" style={styles.title}>
         Agente TDAH
       </Text>
-      <Text style={styles.subtitle}>
-        {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesion para continuar"}
-      </Text>
+      <Text style={styles.subtitle}>Inicia sesion con tu cuenta de Google</Text>
 
       <ScreenContainer.Spacer size="lg" />
-
-      {isRegister && (
-        <>
-          <TextField
-            label="Nombre"
-            value={fullName}
-            onChangeText={setFullName}
-            autoCapitalize="words"
-          />
-          <ScreenContainer.Spacer size="sm" />
-        </>
-      )}
-
-      <TextField
-        label="Correo"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <ScreenContainer.Spacer size="sm" />
-      <TextField
-        label="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
 
       {!!error && (
         <>
+          <Text accessibilityRole="alert" style={styles.error}>
+            {error}
+          </Text>
           <ScreenContainer.Spacer size="sm" />
-          <Text style={styles.error}>{error}</Text>
         </>
       )}
 
-      <ScreenContainer.Spacer size="lg" />
-
-      <Button
-        label={isRegister ? "Crear cuenta" : "Entrar"}
-        onPress={handleSubmit}
-        loading={loading}
-        disabled={!email || !password || (isRegister && !fullName)}
-      />
-
-      <ScreenContainer.Spacer size="sm" />
-
-      <Button
-        variant="secondary"
-        label={isRegister ? "Ya tengo cuenta" : "Crear una cuenta"}
-        onPress={() => {
-          setError("");
-          setMode(isRegister ? "login" : "register");
-        }}
-      />
-
-      <ScreenContainer.Spacer size="sm" />
-
-      <Button
-        variant="secondary"
-        label="Continuar con Google"
-        onPress={handleGoogleLogin}
-        loading={googleLoading}
-      />
+      <Button label="Continuar con Google" onPress={handleGoogleLogin} loading={googleLoading} />
     </ScreenContainer>
   );
 }
