@@ -1,16 +1,16 @@
 // Almacenamiento del JWT de sesion. En web (pwa via react-native-web) usa
-// localStorage (persiste entre recargas); en nativo no hay localStorage asi
-// que cae a memoria (la sesion se pierde al cerrar la app - aceptable para
-// este prototipo, evita anadir una dependencia de storage nativo no pedida).
+// localStorage (persiste entre recargas); en nativo usa expo-secure-store
+// (Keystore de Android), sincrono, para que la sesion sobreviva al cierre de
+// la app y la tarea de ubicacion en segundo plano pueda leerlo.
+import * as SecureStore from "expo-secure-store";
+
 const STORAGE_KEY = "ase3_tdah_token";
 
 const hasLocalStorage = typeof localStorage !== "undefined";
 
-let memoryToken: string | null = null;
-
 export function getToken(): string | null {
   if (hasLocalStorage) return localStorage.getItem(STORAGE_KEY);
-  return memoryToken;
+  return SecureStore.getItem(STORAGE_KEY);
 }
 
 export function setToken(token: string): void {
@@ -18,7 +18,7 @@ export function setToken(token: string): void {
     localStorage.setItem(STORAGE_KEY, token);
     return;
   }
-  memoryToken = token;
+  SecureStore.setItem(STORAGE_KEY, token);
 }
 
 export function clearToken(): void {
@@ -26,5 +26,5 @@ export function clearToken(): void {
     localStorage.removeItem(STORAGE_KEY);
     return;
   }
-  memoryToken = null;
+  void SecureStore.deleteItemAsync(STORAGE_KEY);
 }

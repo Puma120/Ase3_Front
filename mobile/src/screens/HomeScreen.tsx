@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { Icon, IconName } from "../components/Icon";
 import { fontSize, minTouchTarget, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
+import { startLocationTracking } from "../native/location";
+import { setupPush } from "../native/push";
+import { refreshToken } from "../services/authApi";
+import { setToken } from "../services/authStore";
+import { heartbeat } from "../services/proactiveApi";
 import { ChatScreen } from "./ChatScreen";
 import { HomeDashboard } from "./HomeDashboard";
 import { SettingsScreen } from "./SettingsScreen";
@@ -37,6 +42,18 @@ export function HomeScreen() {
     tabLabel: { color: c.textMuted, fontSize: fontSize.xs, fontWeight: "600" },
     tabLabelActive: { color: c.primary },
   }));
+
+  // Motor proactivo: al entrar se marca al usuario como activo (el tick solo
+  // atiende usuarios activos), se registra el token de push y arranca la
+  // ubicacion en segundo plano. Cada paso falla en silencio: la app funciona
+  // igual sin permisos.
+  useEffect(() => {
+    // Renovacion deslizante: cada vez que entran, el JWT vuelve a tener 30 dias.
+    refreshToken().then(setToken).catch(() => {});
+    heartbeat().catch(() => {});
+    setupPush().catch(() => {});
+    startLocationTracking().catch(() => {});
+  }, []);
 
   const [tab, setTab] = useState<Tab>("home");
   const [chatPrefillMessage, setChatPrefillMessage] = useState("");

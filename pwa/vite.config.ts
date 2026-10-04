@@ -26,6 +26,12 @@ export default defineConfig(({ mode }) => {
             new URL("./src/stubs/expo-web-browser.ts", import.meta.url),
           ),
         },
+        {
+          find: /^expo-secure-store$/,
+          replacement: fileURLToPath(
+            new URL("./src/stubs/expo-secure-store.ts", import.meta.url),
+          ),
+        },
         // react-native-svg (components/Icon.tsx) usa modulos nativos; en web se
         // sustituye por elementos SVG del DOM.
         {

@@ -3,6 +3,14 @@
 
 import { apiFetch } from "./apiClient";
 
+/** Canjea el JWT vigente por uno nuevo de 30 dias (renovacion deslizante). */
+export async function refreshToken(): Promise<string> {
+  const { access_token } = await apiFetch<{ access_token: string }>("/auth/users/me/refresh", {
+    method: "POST",
+  });
+  return access_token;
+}
+
 export interface User {
   id: string;
   email: string;

@@ -2,7 +2,8 @@
 // Uses global fetch, available on both React Native and the web (pwa)
 // target, so this file is reused as-is by front/pwa.
 
-import { getToken } from "./authStore";
+import { clearToken, getToken } from "./authStore";
+import { setLoggedIn } from "./session";
 
 export const GATEWAY_URL =
   (typeof process !== "undefined" ? process.env.EXPO_PUBLIC_GATEWAY_URL : undefined) ??
@@ -31,6 +32,12 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
+    // JWT vencido o invalido: se cierra la sesion para volver al login (en vez de
+    // dejar la app mostrando errores). Solo si habiamos mandado un token.
+    if (response.status === 401 && token) {
+      clearToken();
+      setLoggedIn(false);
+    }
     // El backend (FastAPI) devuelve {"detail": "..."} en errores.
     const body = await response.json().catch(() => null);
     const detail = body?.detail;

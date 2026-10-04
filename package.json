@@ -8,5 +8,8 @@
   "scripts": {
     "mobile": "npm run start --workspace=mobile",
     "pwa": "npm run dev --workspace=pwa"
+  },
+  "overrides": {
+    "react-native": "0.86.3"
   }
 }

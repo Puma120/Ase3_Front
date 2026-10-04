@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { Icon } from "../components/Icon";
+import { runDeviceCommands } from "../native/deviceCommands";
 import { ApiError } from "../services/apiClient";
 import { sendMessage } from "../services/chatApi";
 import { contentMaxWidth, fontSize, minTouchTarget, radius, spacing } from "../theme/tokens";
@@ -151,8 +152,10 @@ export function ChatScreen({
     setSending(true);
 
     try {
-      const response = await sendMessage(text);
-      setMessages((prev) => [...prev, { id: String(nextId++), role: "assistant", text: response }]);
+      const reply = await sendMessage(text);
+      const notes = await runDeviceCommands(reply.device_commands);
+      const full = notes.length ? `${reply.response}\n\n${notes.join("\n")}` : reply.response;
+      setMessages((prev) => [...prev, { id: String(nextId++), role: "assistant", text: full }]);
     } catch (err) {
       setError(
         err instanceof ApiError

@@ -4,10 +4,19 @@
 
 import { apiFetch } from "./apiClient";
 
-export async function sendMessage(message: string): Promise<string> {
-  const { response } = await apiFetch<{ response: string }>("/agent/chat", {
+export interface DeviceCommand {
+  command: string;
+  payload: Record<string, unknown>;
+}
+
+export interface ChatReply {
+  response: string;
+  device_commands: DeviceCommand[];
+}
+
+export function sendMessage(message: string): Promise<ChatReply> {
+  return apiFetch<ChatReply>("/agent/chat", {
     method: "POST",
     body: JSON.stringify({ message }),
   });
-  return response;
 }

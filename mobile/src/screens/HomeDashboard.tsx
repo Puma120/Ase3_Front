@@ -15,6 +15,7 @@ import {
   TaskItem,
 } from "../services/homeApi";
 import { getMe } from "../services/authApi";
+import { listNotifications, markAllRead } from "../services/proactiveApi";
 import { Resource, useResource } from "../services/useResource";
 import { contentMaxWidth, fontSize, minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
@@ -138,10 +139,14 @@ export function HomeDashboard({
     },
     actionText: { color: c.text, fontSize: fontSize.md, fontWeight: "600" },
     error: { color: c.danger, fontSize: fontSize.sm },
+    alertRow: { gap: 2, paddingVertical: spacing.xs },
+    alertTitle: { color: c.text, fontSize: fontSize.md, fontWeight: "600" },
+    alertUnread: { color: c.primary },
     loadingRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   }));
 
   const me = useResource(getMe);
+  const alerts = useResource(listNotifications);
   const suggestion = useResource(getSuggestion);
   const events = useResource(getTodayEvents);
   const tasks = useResource(getPendingTasks);
@@ -205,6 +210,32 @@ export function HomeDashboard({
             onPress={() => onQuickAction(suggestion.data ?? "")}
           />
         </View>
+      )}
+
+      {!!alerts.data?.length && (
+        <Card
+          title="Avisos"
+          icon="bell"
+          trailing={
+            alerts.data.some((n) => !n.read) ? (
+              <Button
+                variant="secondary"
+                label="Marcar leídos"
+                onPress={() => {
+                  markAllRead().catch(() => {});
+                  alerts.setData((prev) => prev?.map((n) => ({ ...n, read: true })) ?? prev);
+                }}
+              />
+            ) : undefined
+          }
+        >
+          {alerts.data.slice(0, 5).map((n) => (
+            <View key={n.id} style={styles.alertRow}>
+              <Text style={[styles.alertTitle, !n.read && styles.alertUnread]}>{n.title}</Text>
+              <MutedText>{n.body}</MutedText>
+            </View>
+          ))}
+        </Card>
       )}
 
       <Card title="Agenda de hoy" icon="calendar">

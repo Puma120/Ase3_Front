@@ -8,10 +8,32 @@
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.ase3.agentetdah",
-      "permissions": ["ACCESS_NOTIFICATION_POLICY"]
+      "permissions": [
+        "ACCESS_NOTIFICATION_POLICY",
+        "POST_NOTIFICATIONS",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "com.android.alarm.permission.SET_ALARM"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "ios": {
       "bundleIdentifier": "com.ase3.agentetdah"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Usamos tu ubicacion para avisarte a que hora salir a tus citas.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
+    ]
   }
 }

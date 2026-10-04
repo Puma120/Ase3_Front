@@ -10,6 +10,8 @@ import { isFocusModeSupported } from "../native/focusMode";
 import { AgentParams, getAgentParams, updateAgentParams } from "../services/agentApi";
 import { ApiError } from "../services/apiClient";
 import { getMe } from "../services/authApi";
+import { stopLocationTracking } from "../native/location";
+import { teardownPush } from "../native/push";
 import { clearToken, setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
@@ -129,7 +131,9 @@ export function SettingsScreen() {
     }
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    // El DELETE del token FCM necesita la sesion: va antes de borrar el JWT.
+    await Promise.allSettled([teardownPush(), stopLocationTracking()]);
     clearToken();
     setLoggedIn(false);
   }
