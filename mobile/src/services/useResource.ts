@@ -9,10 +9,22 @@ export interface Resource<T> {
   needsGoogle: boolean;
   error: string;
   reload: () => void;
+  /** Vuelve a pedir los datos sin quitar los que ya se ven (nada salta). */
+  refresh: () => void;
   setData: (updater: (prev: T | null) => T | null) => void;
 }
 
-// Carga un recurso al montar y expone reload/setData (para updates optimistas).
+// Texto claro para el usuario; el detalle tecnico solo va a la consola.
+export function friendlyError(err: unknown): string {
+  if (err instanceof ApiError) {
+    console.warn(`API ${err.status}: ${err.message}`);
+    return "No pudimos cargar esto. Toca Reintentar.";
+  }
+  return "No hay conexión con el servidor. Revisa tu internet y toca Reintentar.";
+}
+
+// Carga un recurso al montar y expone reload/refresh/setData (para updates
+// optimistas).
 export function useResource<T>(fetcher: () => Promise<T>): Resource<T> {
   const [data, setDataState] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,22 +33,33 @@ export function useResource<T>(fetcher: () => Promise<T>): Resource<T> {
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
 
-  const reload = useCallback(() => {
-    setLoading(true);
-    setError("");
-    setNeedsGoogle(false);
+  const load = useCallback((silent: boolean) => {
+    if (!silent) {
+      setLoading(true);
+      setError("");
+      setNeedsGoogle(false);
+    }
     fetcherRef
       .current()
-      .then(setDataState)
+      .then((value) => {
+        setDataState(value);
+        setError("");
+        setNeedsGoogle(false);
+      })
       .catch((err) => {
+        // En un refresh silencioso se conservan los datos que ya se veian.
+        if (silent) return;
         setDataState(null);
         if (err instanceof ApiError && err.status === 428) setNeedsGoogle(true);
-        else setError(err instanceof ApiError ? err.message : "No se pudo conectar con el servidor");
+        else setError(friendlyError(err));
       })
       .finally(() => setLoading(false));
   }, []);
 
+  const reload = useCallback(() => load(false), [load]);
+  const refresh = useCallback(() => load(true), [load]);
+
   useEffect(reload, [reload]);
 
-  return { data, loading, needsGoogle, error, reload, setData: setDataState };
+  return { data, loading, needsGoogle, error, reload, refresh, setData: setDataState };
 }

@@ -4,3 +4,7 @@ export { TextField } from "./TextField";
 export { Card, MutedText } from "./Card";
 export { Icon } from "./Icon";
 export { Stepper } from "./Stepper";
+export { Collapsible } from "./Collapsible";
+export { SegmentedControl } from "./SegmentedControl";
+export { SaveBadge, SaveError, useSaveState } from "./SaveStatus";
+export { RichText } from "./RichText";

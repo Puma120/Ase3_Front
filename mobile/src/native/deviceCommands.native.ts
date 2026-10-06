@@ -9,7 +9,7 @@ import type { DeviceCommand } from "../services/chatApi";
 async function setAlarm(payload: Record<string, unknown>): Promise<string> {
   if (Platform.OS !== "android") return "Las alarmas solo se pueden crear desde la app de Android.";
   const when = new Date(String(payload.time));
-  if (Number.isNaN(when.getTime())) return "No pude crear la alarma: la hora no es valida.";
+  if (Number.isNaN(when.getTime())) return "No pude crear la alarma: la hora no es válida.";
   const hh = String(when.getHours()).padStart(2, "0");
   const mm = String(when.getMinutes()).padStart(2, "0");
   try {
@@ -34,7 +34,7 @@ export async function runDeviceCommands(commands: DeviceCommand[]): Promise<stri
     else if (command === "set_focus_mode")
       // Cambiar No Molestar exige codigo nativo propio; hasta tenerlo se avisa
       // en vez de fingir que se activo.
-      notes.push("Todavia no puedo activar No Molestar yo solo: hazlo desde Ajustes > No molestar.");
+      notes.push("Todavía no puedo activar No molestar yo solo. Actívalo desde los ajustes del teléfono > No molestar.");
   }
   return notes;
 }

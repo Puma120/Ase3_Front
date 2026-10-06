@@ -6,6 +6,8 @@ import { setToken } from "./services/authStore";
 import { consumeWebCallbackToken } from "./services/googleAuth";
 import { isLoggedIn, setLoggedIn, subscribe } from "./services/session";
 import { getToken } from "./services/authStore";
+import { useAppFonts } from "./theme/useAppFonts";
+import { useApplyWebTheme } from "./theme/useTheme";
 
 // Root component. Exported so front/pwa can import it directly and render
 // it through react-native-web — this is the actual component-sharing
@@ -21,11 +23,16 @@ export default function App() {
     return isLoggedIn() || !!getToken();
   });
 
+  useApplyWebTheme();
+  const fontsReady = useAppFonts();
+
   useEffect(() => {
     if (loggedIn) setLoggedIn(true); // sincroniza el store si habia token guardado
     return subscribe(() => setLoggedInState(isLoggedIn()));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sin la fuente se muestra el fondo vacio un instante, no texto que cambia.
+  if (!fontsReady) return null;
   return loggedIn ? <HomeScreen /> : <AuthScreen />;
 }

@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, Text } from "react-native";
 
 import { useStyles, useTheme } from "../theme/useTheme";
-import { fontSize, minTouchTarget, radius, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface ButtonProps {
@@ -10,6 +10,8 @@ interface ButtonProps {
   variant?: "primary" | "secondary";
   disabled?: boolean;
   loading?: boolean;
+  /** Texto mientras carga: nunca se muestra un indicador sin explicacion. */
+  loadingLabel?: string;
   icon?: IconName;
 }
 
@@ -21,10 +23,11 @@ export function Button({
   variant = "primary",
   disabled = false,
   loading = false,
+  loadingLabel = "Cargando…",
   icon,
 }: ButtonProps) {
   const { colors } = useTheme();
-  const styles = useStyles((c) => ({
+  const styles = useStyles((c, t) => ({
     base: {
       minHeight: minTouchTarget,
       borderRadius: radius.md,
@@ -33,12 +36,13 @@ export function Button({
       justifyContent: "center",
       gap: spacing.sm,
       paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
     },
     primary: { backgroundColor: c.primary },
     secondary: { backgroundColor: "transparent", borderWidth: 1, borderColor: c.border },
     disabled: { opacity: 0.5 },
     pressed: { opacity: 0.85 },
-    label: { fontSize: fontSize.md, fontWeight: "600" },
+    label: { fontSize: t.md, fontWeight: "600", textAlign: "center", flexShrink: 1 },
     labelPrimary: { color: c.onPrimary },
     labelSecondary: { color: c.text },
   }));
@@ -51,7 +55,7 @@ export function Button({
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
-      accessibilityState={{ disabled: inactive }}
+      accessibilityState={{ disabled: inactive, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         isPrimary ? styles.primary : styles.secondary,
@@ -60,15 +64,13 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? colors.onPrimary : colors.primary} />
+        <ActivityIndicator size="small" color={isPrimary ? colors.onPrimary : colors.primary} />
       ) : (
-        <>
-          {icon && <Icon name={icon} size={18} color={fg} />}
-          <Text style={[styles.label, isPrimary ? styles.labelPrimary : styles.labelSecondary]}>
-            {label}
-          </Text>
-        </>
+        icon && <Icon name={icon} size={18} color={fg} />
       )}
+      <Text style={[styles.label, isPrimary ? styles.labelPrimary : styles.labelSecondary]}>
+        {loading ? loadingLabel : label}
+      </Text>
     </Pressable>
   );
 }
