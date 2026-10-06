@@ -51,6 +51,11 @@ export function completeTask(id: string): Promise<{ id: string; status: string }
   return apiFetch(`/tools/tasks/${encodeURIComponent(id)}/complete`, { method: "POST" });
 }
 
+// Deshace "completar" (la tarea vuelve a pendientes en Google Tasks).
+export function reopenTask(id: string): Promise<{ id: string; status: string }> {
+  return apiFetch(`/tools/tasks/${encodeURIComponent(id)}/reopen`, { method: "POST" });
+}
+
 export function getRoutinesSummary(): Promise<RoutinesSummary> {
   return apiFetch<RoutinesSummary>("/tools/routines/summary");
 }

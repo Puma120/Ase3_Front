@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactNode } from "react";
 import { Text, View } from "react-native";
 
 import { useStyles, useTheme } from "../theme/useTheme";
-import { fontSize, radius, spacing } from "../theme/tokens";
+import { radius, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface CardProps extends PropsWithChildren {
@@ -15,7 +15,7 @@ interface CardProps extends PropsWithChildren {
 // contenido debajo. Una sola forma de agrupar informacion en toda la app.
 export function Card({ title, icon, trailing, children }: CardProps) {
   const { colors } = useTheme();
-  const styles = useStyles((c) => ({
+  const styles = useStyles((c, t) => ({
     card: {
       backgroundColor: c.surface,
       borderRadius: radius.lg,
@@ -25,7 +25,7 @@ export function Card({ title, icon, trailing, children }: CardProps) {
       gap: spacing.sm,
     },
     header: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-    title: { flex: 1, color: c.text, fontSize: fontSize.md, fontWeight: "700" },
+    title: { flex: 1, color: c.text, fontSize: t.md, fontWeight: "700" },
   }));
   return (
     <View style={styles.card}>
@@ -43,8 +43,8 @@ export function Card({ title, icon, trailing, children }: CardProps) {
 
 // Texto secundario para estados vacios / de carga dentro de una Card.
 export function MutedText({ children }: PropsWithChildren) {
-  const styles = useStyles((c) => ({
-    muted: { color: c.textMuted, fontSize: fontSize.sm, lineHeight: 19 },
+  const styles = useStyles((c, t) => ({
+    muted: { color: c.textMuted, fontSize: t.sm, lineHeight: t.line(t.sm) },
   }));
   return <Text style={styles.muted}>{children}</Text>;
 }

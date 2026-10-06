@@ -20,8 +20,12 @@ export const putLocation = (lat: number, lng: number, accuracy?: number | null) 
     body: JSON.stringify({ lat, lng, accuracy: accuracy ?? null }),
   });
 
-export const registerDevice = (token: string, platform: "android" | "ios" | "web") =>
-  apiFetch<void>("/proactive/devices", { method: "POST", body: JSON.stringify({ token, platform }) });
+// `sound`: el aviso llega por el canal con sonido o por el silencioso.
+export const registerDevice = (token: string, platform: "android" | "ios" | "web", sound = false) =>
+  apiFetch<void>("/proactive/devices", {
+    method: "POST",
+    body: JSON.stringify({ token, platform, sound }),
+  });
 
 export const unregisterDevice = (token: string) =>
   apiFetch<void>("/proactive/devices", { method: "DELETE", body: JSON.stringify({ token }) });

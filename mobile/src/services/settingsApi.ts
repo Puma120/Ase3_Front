@@ -9,6 +9,10 @@ export interface UserSettings {
   work_end_hour: number;
   proactive_suggestions_enabled: boolean;
   focus_mode_enabled: boolean;
+  /** Horas de silencio: los avisos se guardan en Inicio pero no llegan al telefono. */
+  quiet_hours_enabled: boolean;
+  quiet_start_hour: number;
+  quiet_end_hour: number;
 }
 
 export async function getSettings(): Promise<UserSettings> {

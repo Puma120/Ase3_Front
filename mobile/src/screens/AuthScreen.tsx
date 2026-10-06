@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 
+import { headingLevel } from "../components/a11y";
 import { Button } from "../components/Button";
 import { Icon } from "../components/Icon";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
-import { fontSize, radius, spacing } from "../theme/tokens";
+import { radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 
 // Login solo con Google. El acceso por invitacion lo controla la lista de
 // usuarios de prueba del OAuth en Google Cloud.
 export function AuthScreen() {
   const { colors } = useTheme();
-  const styles = useStyles((c) => ({
+  const styles = useStyles((c, t) => ({
     logo: {
       alignSelf: "center",
       width: 56,
@@ -25,14 +26,15 @@ export function AuthScreen() {
       justifyContent: "center",
       marginBottom: spacing.md,
     },
-    title: { color: c.text, fontSize: fontSize.xl, fontWeight: "700", textAlign: "center" },
+    title: { color: c.text, fontSize: t.xl, fontWeight: "700", textAlign: "center" },
     subtitle: {
       color: c.textMuted,
-      fontSize: fontSize.md,
+      fontSize: t.md,
+      lineHeight: t.line(t.md),
       textAlign: "center",
       marginTop: spacing.xs,
     },
-    error: { color: c.danger, fontSize: fontSize.sm, textAlign: "center" },
+    error: { color: c.danger, fontSize: t.sm, lineHeight: t.line(t.sm), textAlign: "center" },
   }));
   const [error, setError] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -49,7 +51,7 @@ export function AuthScreen() {
         setLoggedIn(true);
       }
     } catch {
-      setError("No se pudo iniciar sesion con Google");
+      setError("No se pudo iniciar sesión con Google. Inténtalo otra vez.");
     } finally {
       setGoogleLoading(false);
     }
@@ -60,10 +62,10 @@ export function AuthScreen() {
       <View style={styles.logo}>
         <Icon name="sparkles" size={28} color={colors.primary} />
       </View>
-      <Text accessibilityRole="header" style={styles.title}>
+      <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
         Agente TDAH
       </Text>
-      <Text style={styles.subtitle}>Inicia sesion con tu cuenta de Google</Text>
+      <Text style={styles.subtitle}>Entra con tu cuenta de Google. No necesitas contraseña.</Text>
 
       <ScreenContainer.Spacer size="lg" />
 
@@ -76,7 +78,12 @@ export function AuthScreen() {
         </>
       )}
 
-      <Button label="Continuar con Google" onPress={handleGoogleLogin} loading={googleLoading} />
+      <Button
+        label="Continuar con Google"
+        loadingLabel="Abriendo Google…"
+        onPress={handleGoogleLogin}
+        loading={googleLoading}
+      />
     </ScreenContainer>
   );
 }

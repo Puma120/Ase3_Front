@@ -3,5 +3,5 @@
 import type { DeviceCommand } from "../services/chatApi";
 
 export async function runDeviceCommands(commands: DeviceCommand[]): Promise<string[]> {
-  return commands.length ? ["Esa accion solo esta disponible en la app de Android."] : [];
+  return commands.length ? ["Esa acción solo está disponible en la app de Android."] : [];
 }

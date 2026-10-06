@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 
 import { useStyles, useTheme } from "../theme/useTheme";
-import { fontSize, minTouchTarget, radius, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { Icon } from "./Icon";
 
 interface StepperProps {
@@ -19,12 +19,21 @@ interface StepperProps {
 // propenso a error que un slider para usuarios con TDAH.
 export function Stepper({ label, hint, value, min, max, step = 1, format, onChange }: StepperProps) {
   const { colors } = useTheme();
-  const styles = useStyles((c) => ({
-    row: { flexDirection: "row", alignItems: "center", gap: spacing.md, minHeight: minTouchTarget },
-    text: { flex: 1, gap: 2 },
-    label: { color: c.text, fontSize: fontSize.md, fontWeight: "600" },
-    hint: { color: c.textMuted, fontSize: fontSize.xs, lineHeight: 16 },
-    controls: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  const styles = useStyles((c, t) => ({
+    // Con letra grande los controles bajan debajo del texto en vez de
+    // apretarlo en una columna angosta.
+    row: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      columnGap: spacing.md,
+      rowGap: spacing.xs,
+      minHeight: minTouchTarget,
+    },
+    text: { flexGrow: 1, flexShrink: 1, flexBasis: 180, gap: 2 },
+    label: { color: c.text, fontSize: t.md, fontWeight: "600" },
+    hint: { color: c.textMuted, fontSize: t.sm, lineHeight: t.line(t.sm) },
+    controls: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginLeft: "auto" },
     btn: {
       width: minTouchTarget,
       height: minTouchTarget,
@@ -37,10 +46,10 @@ export function Stepper({ label, hint, value, min, max, step = 1, format, onChan
     },
     btnDisabled: { opacity: 0.4 },
     value: {
-      minWidth: 52,
+      minWidth: 56,
       textAlign: "center",
       color: c.text,
-      fontSize: fontSize.md,
+      fontSize: t.md,
       fontWeight: "700",
     },
   }));
@@ -65,7 +74,9 @@ export function Stepper({ label, hint, value, min, max, step = 1, format, onChan
         >
           <Icon name="minus" size={18} color={colors.text} />
         </Pressable>
-        <Text style={styles.value}>{format ? format(value) : String(value)}</Text>
+        <Text style={styles.value} aria-live="polite">
+          {format ? format(value) : String(value)}
+        </Text>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Aumentar ${label}`}

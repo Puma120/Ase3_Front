@@ -63,10 +63,12 @@ export const radius = {
   pill: 999,
 };
 
+// Tamanos base (px). useTheme() los escala segun el tamano de letra elegido
+// en Ajustes y el del navegador; las pantallas usan esa version escalada.
 export const fontSize = {
-  xs: 12,
-  sm: 13,
-  md: 15,
+  xs: 13,
+  sm: 14,
+  md: 16,
   lg: 18,
   xl: 24,
   xxl: 32,

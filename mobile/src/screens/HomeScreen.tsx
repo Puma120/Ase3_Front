@@ -1,31 +1,48 @@
-import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BackHandler, Platform, Pressable, Text, View } from "react-native";
 
 import { Icon, IconName } from "../components/Icon";
-import { fontSize, minTouchTarget, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
-import { startLocationTracking } from "../native/location";
-import { setupPush } from "../native/push";
+import { resumeLocation } from "../native/location";
+import { resumePush } from "../native/push";
 import { refreshToken } from "../services/authApi";
 import { setToken } from "../services/authStore";
+import { getItem, setItem } from "../services/localStore";
 import { heartbeat } from "../services/proactiveApi";
-import { ChatScreen } from "./ChatScreen";
+import { ChatScreen, OutgoingMessage } from "./ChatScreen";
 import { HomeDashboard } from "./HomeDashboard";
 import { SettingsScreen } from "./SettingsScreen";
 
 type Tab = "home" | "chat" | "settings";
 
-const TABS: { key: Tab; label: string; icon: IconName }[] = [
-  { key: "home", label: "Inicio", icon: "home" },
-  { key: "chat", label: "Chat", icon: "chat" },
-  { key: "settings", label: "Ajustes", icon: "settings" },
+const TABS: { key: Tab; label: string; icon: IconName; hash: string; title: string }[] = [
+  { key: "home", label: "Inicio", icon: "home", hash: "#inicio", title: "Inicio" },
+  { key: "chat", label: "Chat", icon: "chat", hash: "#chat", title: "Chat" },
+  { key: "settings", label: "Ajustes", icon: "settings", hash: "#ajustes", title: "Ajustes" },
 ];
+
+const TAB_KEY = "ase3_tab";
+const isWeb = Platform.OS === "web";
+
+const isTab = (value: unknown): value is Tab => TABS.some((t) => t.key === value);
+const tabFromHash = (): Tab | null =>
+  isWeb ? (TABS.find((t) => t.hash === window.location.hash)?.key ?? null) : null;
+
+// Al volver a la app se abre la ultima pestana usada (decision 5): en web
+// manda la URL (#chat), si no, lo guardado en el dispositivo.
+function initialTab(): Tab {
+  const stored = getItem(TAB_KEY);
+  return tabFromHash() ?? (isTab(stored) ? stored : "home");
+}
 
 export function HomeScreen() {
   const { colors } = useTheme();
-  const styles = useStyles((c) => ({
+  const styles = useStyles((c, t) => ({
     flex: { flex: 1, backgroundColor: c.background },
     content: { flex: 1 },
+    hidden: { display: "none" },
+    tabList: { flex: 1, flexDirection: "row" },
     tabBar: {
       flexDirection: "row",
       borderTopWidth: 1,
@@ -38,64 +55,118 @@ export function HomeScreen() {
       alignItems: "center",
       justifyContent: "center",
       gap: 2,
+      paddingVertical: spacing.xs,
     },
-    tabLabel: { color: c.textMuted, fontSize: fontSize.xs, fontWeight: "600" },
-    tabLabelActive: { color: c.primary },
+    // La pestana activa se marca con fondo, color y negrita: no solo color.
+    tabPill: {
+      paddingHorizontal: spacing.md + spacing.xs,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.pill,
+    },
+    tabPillActive: { backgroundColor: c.primarySoft },
+    tabLabel: { color: c.textMuted, fontSize: t.xs, fontWeight: "600" },
+    tabLabelActive: { color: c.primary, fontWeight: "800" },
   }));
 
   // Motor proactivo: al entrar se marca al usuario como activo (el tick solo
-  // atiende usuarios activos), se registra el token de push y arranca la
-  // ubicacion en segundo plano. Cada paso falla en silencio: la app funciona
-  // igual sin permisos.
+  // atiende usuarios activos) y se retoman los avisos y la ubicacion SOLO si
+  // el usuario ya los activo en Ajustes: abrir la app nunca pide permisos.
   useEffect(() => {
     // Renovacion deslizante: cada vez que entran, el JWT vuelve a tener 30 dias.
     refreshToken().then(setToken).catch(() => {});
     heartbeat().catch(() => {});
-    setupPush().catch(() => {});
-    startLocationTracking().catch(() => {});
+    resumePush().catch(() => {});
+    resumeLocation().catch(() => {});
   }, []);
 
-  const [tab, setTab] = useState<Tab>("home");
-  const [chatPrefillMessage, setChatPrefillMessage] = useState("");
-  const [chatPrefillNonce, setChatPrefillNonce] = useState(0);
+  const [tab, setTab] = useState<Tab>(initialTab);
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const [outgoing, setOutgoing] = useState<OutgoingMessage | null>(null);
 
-  function handleQuickAction(prompt: string) {
-    setChatPrefillMessage(prompt);
-    setChatPrefillNonce((n) => n + 1);
-    setTab("chat");
+  const showTab = useCallback((next: Tab) => {
+    setTab(next);
+    setItem(TAB_KEY, next);
+  }, []);
+
+  // Cambiar de pestana deja una entrada en el historial del navegador, para
+  // que "atras" vuelva a la pestana anterior en vez de salir de la app.
+  const goTo = useCallback(
+    (next: Tab) => {
+      if (next === tabRef.current) return;
+      showTab(next);
+      if (isWeb) window.history.pushState(null, "", TABS.find((t) => t.key === next)!.hash);
+    },
+    [showTab],
+  );
+
+  useEffect(() => {
+    if (isWeb) {
+      window.history.replaceState(null, "", TABS.find((t) => t.key === tabRef.current)!.hash);
+      const onPop = () => showTab(tabFromHash() ?? "home");
+      window.addEventListener("popstate", onPop);
+      return () => window.removeEventListener("popstate", onPop);
+    }
+    // Android: el boton atras regresa a Inicio antes de salir de la app.
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (tabRef.current === "home") return false;
+      showTab("home");
+      return true;
+    });
+    return () => sub.remove();
+  }, [showTab]);
+
+  useEffect(() => {
+    if (isWeb) document.title = `${TABS.find((t) => t.key === tab)!.title} · Agente TDAH`;
+  }, [tab]);
+
+  // Los atajos de Inicio mandan su mensaje de inmediato (un toque) y no
+  // tocan el borrador que el usuario estuviera escribiendo.
+  function handleQuickAction(text: string) {
+    setOutgoing({ text, nonce: Date.now() });
+    goTo("chat");
   }
 
+  // Las tres pantallas quedan montadas y solo se ocultan: al cambiar de
+  // pestana no se pierde la conversacion, el borrador ni el scroll.
   return (
     <View style={styles.flex}>
-      <View style={styles.content}>
-        {tab === "home" ? (
+      <View role="main" style={styles.content}>
+        <View style={[styles.content, tab !== "home" && styles.hidden]}>
           <HomeDashboard
+            active={tab === "home"}
             onQuickAction={handleQuickAction}
-            onOpenSettings={() => setTab("settings")}
+            onOpenSettings={() => goTo("settings")}
           />
-        ) : tab === "chat" ? (
-          <ChatScreen prefillMessage={chatPrefillMessage} prefillNonce={chatPrefillNonce} />
-        ) : (
-          <SettingsScreen />
-        )}
+        </View>
+        <View style={[styles.content, tab !== "chat" && styles.hidden]}>
+          <ChatScreen active={tab === "chat"} outgoing={outgoing} />
+        </View>
+        <View style={[styles.content, tab !== "settings" && styles.hidden]}>
+          <SettingsScreen active={tab === "settings"} />
+        </View>
       </View>
 
-      <View style={styles.tabBar} accessibilityRole="tablist">
-        {TABS.map(({ key, label, icon }) => {
-          const active = tab === key;
-          return (
-            <Pressable
-              key={key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: active }}
-              style={styles.tabButton}
-              onPress={() => setTab(key)}
-            >
-              <Icon name={icon} size={22} color={active ? colors.primary : colors.textMuted} />
-              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{label}</Text>
-            </Pressable>
-          );
-        })}
+      <View role="navigation" aria-label="Pantallas de la app" style={styles.tabBar}>
+        <View accessibilityRole="tablist" style={styles.tabList}>
+          {TABS.map(({ key, label, icon }) => {
+            const active = tab === key;
+            return (
+              <Pressable
+                key={key}
+                accessibilityRole="tab"
+                aria-selected={active}
+                style={styles.tabButton}
+                onPress={() => goTo(key)}
+              >
+                <View style={[styles.tabPill, active && styles.tabPillActive]}>
+                  <Icon name={icon} size={22} color={active ? colors.primary : colors.textMuted} />
+                </View>
+                <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </View>
   );

@@ -6,7 +6,10 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Asistente para organizar tu día: agenda, tareas, alarmas y momentos para concentrarte." />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <title>Agente TDAH</title>
     <style>
       html, body, #root {
@@ -21,6 +24,15 @@
       #root {
         display: flex;
         flex-direction: column;
+      }
+      /* Decision 10: si el sistema pide "reducir movimiento", nada se anima. */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
     </style>
   </head>

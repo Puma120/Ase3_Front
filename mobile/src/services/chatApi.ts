@@ -20,3 +20,15 @@ export function sendMessage(message: string): Promise<ChatReply> {
     body: JSON.stringify({ message }),
   });
 }
+
+export interface HistoryMessage {
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+// Ultimos mensajes de la conversacion (back/agent_service guarda el
+// historial): al volver a la app el usuario ve en que iba.
+export function getHistory(limit = 30): Promise<HistoryMessage[]> {
+  return apiFetch<HistoryMessage[]>(`/agent/history?limit=${limit}`);
+}

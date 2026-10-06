@@ -29,7 +29,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Usamos tu ubicacion para avisarte a que hora salir a tus citas.",
+          "locationAlwaysAndWhenInUsePermission": "Usamos tu ubicación para avisarte a qué hora salir a tus citas.",
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true
         }

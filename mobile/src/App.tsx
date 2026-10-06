@@ -6,6 +6,7 @@ import { setToken } from "./services/authStore";
 import { consumeWebCallbackToken } from "./services/googleAuth";
 import { isLoggedIn, setLoggedIn, subscribe } from "./services/session";
 import { getToken } from "./services/authStore";
+import { useApplyWebTheme } from "./theme/useTheme";
 
 // Root component. Exported so front/pwa can import it directly and render
 // it through react-native-web — this is the actual component-sharing
@@ -20,6 +21,8 @@ export default function App() {
     if (googleToken) setToken(googleToken);
     return isLoggedIn() || !!getToken();
   });
+
+  useApplyWebTheme();
 
   useEffect(() => {
     if (loggedIn) setLoggedIn(true); // sincroniza el store si habia token guardado

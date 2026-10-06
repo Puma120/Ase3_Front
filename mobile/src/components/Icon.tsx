@@ -83,6 +83,23 @@ const ICONS = {
   plus: [line(12, 5, 12, 19), line(5, 12, 19, 12)],
   minus: [line(5, 12, 19, 12)],
   refresh: [poly("23 4 23 10 17 10"), p("M20.5 15a9 9 0 1 1-2.1-9.4L23 10")],
+  chevronDown: [poly("6 9 12 15 18 9")],
+  chevronUp: [poly("18 15 12 9 6 15")],
+  play: [poly("6 4 20 12 6 20 6 4")],
+  zap: [poly("13 2 3 14 12 14 11 22 21 10 12 10 13 2")],
+  undo: [poly("9 14 4 9 9 4"), p("M20 20v-7a4 4 0 0 0-4-4H4")],
+  alert: [circle(12, 12, 10), line(12, 8, 12, 12), line(12, 16, 12.01, 16)],
+  sun: [
+    circle(12, 12, 4),
+    line(12, 2, 12, 4),
+    line(12, 20, 12, 22),
+    line(4.9, 4.9, 6.3, 6.3),
+    line(17.7, 17.7, 19.1, 19.1),
+    line(2, 12, 4, 12),
+    line(20, 12, 22, 12),
+    line(4.9, 19.1, 6.3, 17.7),
+    line(17.7, 6.3, 19.1, 4.9),
+  ],
 } satisfies Record<string, Shape[]>;
 
 export type IconName = keyof typeof ICONS;
@@ -96,7 +113,9 @@ interface IconProps {
 
 export function Icon({ name, size = 20, color, strokeWidth = 2 }: IconProps) {
   return (
+    // Decorativo: el significado siempre lo da el texto que lo acompana.
     <Svg
+      aria-hidden
       width={size}
       height={size}
       viewBox="0 0 24 24"

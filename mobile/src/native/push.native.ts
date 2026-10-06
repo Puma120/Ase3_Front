@@ -1,17 +1,45 @@
 // Push nativo (Android): registra el token FCM del dispositivo en
 // back/proactive_service y muestra los avisos tambien con la app abierta.
+//
+// Decision 1 del documento de diseno TDAH: nada interrumpe sin permiso. El
+// permiso se pide solo cuando el usuario activa "Avisos en este telefono" en
+// Ajustes (enablePush), nunca al abrir la app; al arrancar, resumePush solo
+// retoma lo que el usuario ya activo. Por defecto los avisos no suenan.
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
+import { getJSON, setJSON } from "../services/localStore";
 import { registerDevice, unregisterDevice } from "../services/proactiveApi";
 
-export const CHANNEL_ID = "proactive";
+// back/proactive_service elige el canal segun el `sound` del dispositivo.
+export const CHANNEL_SILENT = "avisos_silencio";
+export const CHANNEL_SOUND = "avisos_sonido";
+const LEGACY_CHANNEL = "proactive";
+
+const PREFS_KEY = "ase3_push";
+
+export interface PushPrefs {
+  enabled: boolean;
+  sound: boolean;
+}
+
+export function isPushSupported(): boolean {
+  return Platform.OS === "android";
+}
+
+export function getPushPrefs(): PushPrefs {
+  return getJSON<PushPrefs>(PREFS_KEY, { enabled: false, sound: false });
+}
+
+function savePushPrefs(prefs: PushPrefs): void {
+  setJSON(PREFS_KEY, prefs);
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: true,
+    shouldPlaySound: getPushPrefs().sound,
     shouldSetBadge: false,
   }),
 });
@@ -19,32 +47,82 @@ Notifications.setNotificationHandler({
 let currentToken: string | null = null;
 let tokenSubscription: { remove: () => void } | null = null;
 
-export async function setupPush(): Promise<void> {
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: "Avisos del asistente",
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-    });
-  }
+const platform = () => (Platform.OS === "ios" ? "ios" : "android") as "ios" | "android";
 
-  let { status } = await Notifications.getPermissionsAsync();
-  if (status !== "granted") ({ status } = await Notifications.requestPermissionsAsync());
-  if (status !== "granted") return;
+async function ensureChannels(): Promise<void> {
+  if (Platform.OS !== "android") return;
+  await Notifications.setNotificationChannelAsync(CHANNEL_SILENT, {
+    name: "Avisos sin sonido",
+    importance: Notifications.AndroidImportance.DEFAULT,
+    sound: null,
+    enableVibrate: false,
+  });
+  await Notifications.setNotificationChannelAsync(CHANNEL_SOUND, {
+    name: "Avisos con sonido",
+    importance: Notifications.AndroidImportance.HIGH,
+    vibrationPattern: [0, 250, 250, 250],
+  });
+  // El canal anterior sonaba siempre; Android no deja bajarle el volumen
+  // desde la app, asi que se reemplaza por los dos de arriba.
+  await Notifications.deleteNotificationChannelAsync(LEGACY_CHANNEL).catch(() => {});
+}
 
+async function register(sound: boolean): Promise<void> {
   const { data } = await Notifications.getDevicePushTokenAsync();
   currentToken = String(data);
-  await registerDevice(currentToken, Platform.OS === "ios" ? "ios" : "android");
+  await registerDevice(currentToken, platform(), sound);
 
   // FCM puede rotar el token: se vuelve a registrar el nuevo.
   tokenSubscription?.remove();
   tokenSubscription = Notifications.addPushTokenListener((next) => {
     currentToken = String(next.data);
-    registerDevice(currentToken, Platform.OS === "ios" ? "ios" : "android").catch(() => {});
+    registerDevice(currentToken, platform(), getPushPrefs().sound).catch(() => {});
   });
 }
 
-// Se llama antes de borrar el JWT (el DELETE necesita sesion).
+/** Al abrir la app: retoma los avisos solo si el usuario ya los activo y el
+ * permiso sigue concedido. Nunca muestra el dialogo de permiso. */
+export async function resumePush(): Promise<void> {
+  const stored = getJSON<PushPrefs | null>(PREFS_KEY, null);
+  const { status } = await Notifications.getPermissionsAsync();
+  // Instalaciones anteriores (sin preferencia guardada) que ya habian
+  // concedido el permiso: se mantienen los avisos, pero sin sonido.
+  const prefs = stored ?? { enabled: status === "granted", sound: false };
+  if (!stored) savePushPrefs(prefs);
+  if (!prefs.enabled || status !== "granted") return;
+  await ensureChannels();
+  await register(prefs.sound);
+}
+
+/** Desde el interruptor de Ajustes: aqui si se pide el permiso. Devuelve
+ * false si el usuario lo nego. */
+export async function enablePush(sound: boolean): Promise<boolean> {
+  // En Android 13+ el dialogo solo aparece si ya existe un canal.
+  await ensureChannels();
+  let { status } = await Notifications.getPermissionsAsync();
+  if (status !== "granted") ({ status } = await Notifications.requestPermissionsAsync());
+  if (status !== "granted") {
+    savePushPrefs({ enabled: false, sound });
+    return false;
+  }
+  savePushPrefs({ enabled: true, sound });
+  await register(sound);
+  return true;
+}
+
+export async function disablePush(): Promise<void> {
+  savePushPrefs({ ...getPushPrefs(), enabled: false });
+  await teardownPush();
+}
+
+export async function setPushSound(sound: boolean): Promise<void> {
+  const prefs = getPushPrefs();
+  savePushPrefs({ ...prefs, sound });
+  if (prefs.enabled && currentToken) await registerDevice(currentToken, platform(), sound);
+}
+
+// Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la
+// preferencia: al volver a entrar, resumePush registra el dispositivo otra vez.
 export async function teardownPush(): Promise<void> {
   tokenSubscription?.remove();
   tokenSubscription = null;
