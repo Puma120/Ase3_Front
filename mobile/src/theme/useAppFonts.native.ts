@@ -6,9 +6,13 @@ import {
   AtkinsonHyperlegibleNext_700Bold,
   AtkinsonHyperlegibleNext_800ExtraBold,
 } from "@expo-google-fonts/atkinson-hyperlegible-next";
+import {
+  AtkinsonHyperlegibleMono_500Medium,
+  AtkinsonHyperlegibleMono_700Bold,
+} from "@expo-google-fonts/atkinson-hyperlegible-mono";
 import { useFonts } from "expo-font";
 
-import { FONT_FILES } from "./tokens";
+import { FONT_FILES, FONT_MONO_FILES } from "./tokens";
 
 export function useAppFonts(): boolean {
   const [loaded, error] = useFonts({
@@ -17,6 +21,8 @@ export function useAppFonts(): boolean {
     [FONT_FILES["600"]]: AtkinsonHyperlegibleNext_600SemiBold,
     [FONT_FILES["700"]]: AtkinsonHyperlegibleNext_700Bold,
     [FONT_FILES["800"]]: AtkinsonHyperlegibleNext_800ExtraBold,
+    [FONT_MONO_FILES["500"]]: AtkinsonHyperlegibleMono_500Medium,
+    [FONT_MONO_FILES["700"]]: AtkinsonHyperlegibleMono_700Bold,
   });
   // Si la fuente falla, la app abre igual con la del sistema.
   return loaded || !!error;

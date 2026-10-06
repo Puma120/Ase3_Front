@@ -39,7 +39,7 @@ export function Stepper({ label, hint, value, min, max, step = 1, format, onChan
       height: minTouchTarget,
       borderRadius: radius.md,
       borderWidth: 1,
-      borderColor: c.border,
+      borderColor: c.controlBorder,
       backgroundColor: c.surfaceRaised,
       alignItems: "center",
       justifyContent: "center",

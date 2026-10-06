@@ -3,38 +3,30 @@ import { Text, View } from "react-native";
 
 import { headingLevel } from "../components/a11y";
 import { Button } from "../components/Button";
-import { Icon } from "../components/Icon";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
 import { setLoggedIn } from "../services/session";
 import { radius, spacing } from "../theme/tokens";
-import { useStyles, useTheme } from "../theme/useTheme";
+import { useStyles } from "../theme/useTheme";
 
 // Login solo con Google. El acceso por invitacion lo controla la lista de
 // usuarios de prueba del OAuth en Google Cloud.
 export function AuthScreen() {
-  const { colors } = useTheme();
   const styles = useStyles((c, t) => ({
-    logo: {
-      alignSelf: "center",
-      width: 56,
-      height: 56,
-      borderRadius: radius.lg,
-      backgroundColor: c.primarySoft,
-      alignItems: "center",
-      justifyContent: "center",
+    mark: {
+      alignSelf: "flex-start",
+      backgroundColor: c.highlight,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
       marginBottom: spacing.md,
     },
-    title: { color: c.text, fontSize: t.xl, fontWeight: "700", textAlign: "center" },
-    subtitle: {
-      color: c.textMuted,
-      fontSize: t.md,
-      lineHeight: t.line(t.md),
-      textAlign: "center",
-      marginTop: spacing.xs,
-    },
-    error: { color: c.danger, fontSize: t.sm, lineHeight: t.line(t.sm), textAlign: "center" },
+    markText: { color: c.onHighlight, fontSize: t.sm, fontWeight: "800" },
+    title: { color: c.text, fontSize: t.xxl, fontWeight: "800" },
+    rule: { height: 3, backgroundColor: c.primary, marginVertical: spacing.md },
+    subtitle: { color: c.textMuted, fontSize: t.md, lineHeight: t.line(t.md) },
+    error: { color: c.danger, fontSize: t.sm, lineHeight: t.line(t.sm) },
   }));
   const [error, setError] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -59,12 +51,13 @@ export function AuthScreen() {
 
   return (
     <ScreenContainer center>
-      <View style={styles.logo}>
-        <Icon name="sparkles" size={28} color={colors.primary} />
+      <View style={styles.mark}>
+        <Text style={styles.markText}>Tu día, paso a paso</Text>
       </View>
       <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
         Agente TDAH
       </Text>
+      <View style={styles.rule} />
       <Text style={styles.subtitle}>Entra con tu cuenta de Google. No necesitas contraseña.</Text>
 
       <ScreenContainer.Spacer size="lg" />

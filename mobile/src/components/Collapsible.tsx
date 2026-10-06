@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import { getJSON, setJSON } from "../services/localStore";
 import { useStyles, useTheme } from "../theme/useTheme";
-import { minTouchTarget, radius, spacing } from "../theme/tokens";
+import { minTouchTarget, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface CollapsibleProps extends PropsWithChildren {
@@ -29,13 +29,14 @@ export function Collapsible({ title, icon, summary, storageKey, children }: Coll
       gap: spacing.sm,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderRadius: radius.lg,
-      borderWidth: 1,
-      borderColor: c.border,
+      borderTopWidth: 3,
+      borderTopColor: c.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
       backgroundColor: c.surface,
     },
-    title: { color: c.text, fontSize: t.md, fontWeight: "700" },
-    summary: { flex: 1, color: c.primary, fontSize: t.sm, fontWeight: "600" },
+    title: { color: c.text, fontSize: t.md, fontWeight: "800" },
+    summary: { flex: 1, color: c.textMuted, fontSize: t.sm, fontWeight: "600" },
     content: { gap: spacing.md },
   }));
 
@@ -57,7 +58,7 @@ export function Collapsible({ title, icon, summary, storageKey, children }: Coll
         onPress={toggle}
         style={({ pressed }) => [styles.header, pressed && { opacity: 0.85 }]}
       >
-        <Icon name={icon} size={18} color={colors.primary} />
+        <Icon name={icon} size={18} color={colors.text} />
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.summary} numberOfLines={1}>
           {summary ?? ""}

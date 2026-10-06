@@ -37,7 +37,7 @@ export function SegmentedControl<T extends string>({
       paddingHorizontal: spacing.md,
       borderRadius: radius.md,
       borderWidth: 1,
-      borderColor: c.border,
+      borderColor: c.controlBorder,
       backgroundColor: c.surface,
     },
     optionActive: { borderColor: c.primary, borderWidth: 2, backgroundColor: c.primarySoft },

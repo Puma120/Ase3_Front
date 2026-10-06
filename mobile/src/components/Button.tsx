@@ -39,10 +39,10 @@ export function Button({
       paddingVertical: spacing.sm,
     },
     primary: { backgroundColor: c.primary },
-    secondary: { backgroundColor: "transparent", borderWidth: 1, borderColor: c.border },
+    secondary: { backgroundColor: "transparent", borderWidth: 2, borderColor: c.primary },
     disabled: { opacity: 0.5 },
-    pressed: { opacity: 0.85 },
-    label: { fontSize: t.md, fontWeight: "600", textAlign: "center", flexShrink: 1 },
+    pressed: { opacity: 0.85, transform: [{ translateY: 1 }] },
+    label: { fontSize: t.md, fontWeight: "700", textAlign: "center", flexShrink: 1 },
     labelPrimary: { color: c.onPrimary },
     labelSecondary: { color: c.text },
   }));

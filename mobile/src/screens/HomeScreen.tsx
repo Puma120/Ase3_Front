@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BackHandler, Platform, Pressable, Text, View } from "react-native";
 
 import { Icon, IconName } from "../components/Icon";
-import { minTouchTarget, radius, spacing } from "../theme/tokens";
+import { minTouchTarget, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 import { resumeLocation } from "../native/location";
 import { resumePush } from "../native/push";
@@ -49,23 +49,19 @@ export function HomeScreen() {
       borderTopColor: c.border,
       backgroundColor: c.surface,
     },
+    // Pestana activa: regla de tinta arriba, icono y texto en tinta y negrita.
+    tabRule: { height: 4, width: "100%", backgroundColor: "transparent", marginBottom: spacing.xs },
+    tabRuleActive: { backgroundColor: c.primary },
     tabButton: {
       flex: 1,
       minHeight: minTouchTarget + spacing.md,
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       gap: 2,
-      paddingVertical: spacing.xs,
+      paddingBottom: spacing.xs,
     },
-    // La pestana activa se marca con fondo, color y negrita: no solo color.
-    tabPill: {
-      paddingHorizontal: spacing.md + spacing.xs,
-      paddingVertical: spacing.xs,
-      borderRadius: radius.pill,
-    },
-    tabPillActive: { backgroundColor: c.primarySoft },
     tabLabel: { color: c.textMuted, fontSize: t.xs, fontWeight: "600" },
-    tabLabelActive: { color: c.primary, fontWeight: "800" },
+    tabLabelActive: { color: c.text, fontWeight: "800" },
   }));
 
   // Motor proactivo: al entrar se marca al usuario como activo (el tick solo
@@ -159,9 +155,8 @@ export function HomeScreen() {
                 style={styles.tabButton}
                 onPress={() => goTo(key)}
               >
-                <View style={[styles.tabPill, active && styles.tabPillActive]}>
-                  <Icon name={icon} size={22} color={active ? colors.primary : colors.textMuted} />
-                </View>
+                <View style={[styles.tabRule, active && styles.tabRuleActive]} />
+                <Icon name={icon} size={22} color={active ? colors.text : colors.textMuted} />
                 <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{label}</Text>
               </Pressable>
             );

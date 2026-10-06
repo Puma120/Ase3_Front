@@ -67,10 +67,10 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
     header: {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm + spacing.xs,
-      borderBottomWidth: 1,
-      borderBottomColor: c.border,
+      backgroundColor: c.dayMorning,
     },
     title: { color: c.text, fontSize: t.lg, fontWeight: "800" },
+    headerBar: { borderBottomWidth: 3, borderBottomColor: c.primary },
     list: { padding: spacing.md, gap: spacing.sm },
     bubbleRow: { flexDirection: "row" },
     bubbleRowUser: { justifyContent: "flex-end" },
@@ -84,9 +84,11 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       backgroundColor: c.surface,
       borderWidth: 1,
       borderColor: c.border,
-      borderBottomLeftRadius: radius.sm,
+      borderLeftWidth: 4,
+      borderLeftColor: c.primary,
+      borderRadius: radius.sm,
     },
-    bubbleUser: { backgroundColor: c.primary, borderBottomRightRadius: radius.sm },
+    bubbleUser: { backgroundColor: c.primary, borderRadius: radius.sm },
     // Sin opacidad (bajaria el contraste): borde punteado y fondo neutro.
     bubbleFailed: {
       backgroundColor: c.surface,
@@ -104,9 +106,9 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       justifyContent: "center",
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderRadius: radius.md,
-      borderWidth: 1,
-      borderColor: c.border,
+      borderRadius: radius.sm,
+      borderWidth: 2,
+      borderColor: c.primary,
       backgroundColor: c.surface,
     },
     chipText: { color: c.text, fontSize: t.md },
@@ -126,9 +128,9 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       flex: 1,
       minHeight: minTouchTarget,
       maxHeight: 120,
-      borderRadius: radius.lg,
-      borderWidth: 1,
-      borderColor: c.border,
+      borderRadius: radius.sm,
+      borderWidth: 2,
+      borderColor: c.primary,
       backgroundColor: c.surface,
       color: c.text,
       paddingHorizontal: spacing.md,
@@ -141,7 +143,7 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       flexDirection: "row",
       gap: spacing.xs,
       paddingHorizontal: spacing.md,
-      borderRadius: radius.pill,
+      borderRadius: radius.sm,
       backgroundColor: c.primary,
       alignItems: "center",
       justifyContent: "center",
@@ -293,7 +295,7 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.column}>
-        <View style={styles.header}>
+        <View style={[styles.header, styles.headerBar]}>
           <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
             Chat con tu asistente
           </Text>

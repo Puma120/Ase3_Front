@@ -20,6 +20,7 @@ import {
 import { getMe } from "../services/authApi";
 import { AppNotification, listNotifications, markAllRead } from "../services/proactiveApi";
 import { Resource, useResource } from "../services/useResource";
+import { mono } from "../theme/fonts";
 import { contentMaxWidth, minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useReducedMotion } from "../theme/useReducedMotion";
 import { useStyles, useTheme } from "../theme/useTheme";
@@ -60,6 +61,12 @@ const MAX_SLOTS = 2;
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
 
+// Pagina de la "hoja de llamado" segun la hora: tinte de la cabecera.
+function dayTint(): "dayMorning" | "dayAfternoon" | "dayNight" {
+  const h = new Date().getHours();
+  return h < 12 ? "dayMorning" : h < 19 ? "dayAfternoon" : "dayNight";
+}
+
 function greeting(): string {
   const h = new Date().getHours();
   return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
@@ -85,39 +92,61 @@ export function HomeDashboard({
       width: "100%",
       maxWidth: contentMaxWidth,
       alignSelf: "center",
-      padding: spacing.md,
+      paddingBottom: spacing.lg,
       gap: spacing.md,
     },
-    header: { gap: 2, paddingVertical: spacing.sm },
-    title: { color: c.text, fontSize: t.xl, fontWeight: "800" },
-    date: { color: c.textMuted, fontSize: t.sm },
-    start: {
-      backgroundColor: c.primarySoft,
-      borderRadius: radius.lg,
-      borderWidth: 1,
-      borderColor: c.primary,
+    // Cabecera tintada segun el momento del dia (manana / tarde / noche).
+    header: {
+      gap: 2,
       padding: spacing.md,
+      paddingTop: spacing.lg,
+      backgroundColor: c[dayTint()],
+      borderBottomWidth: 3,
+      borderBottomColor: c.primary,
+    },
+    title: { color: c.text, fontSize: t.xl, fontWeight: "800" },
+    date: { color: c.text, fontSize: t.sm, ...mono("500") },
+    start: {
+      backgroundColor: c.surface,
+      borderTopWidth: 3,
+      borderTopColor: c.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.md,
       gap: spacing.sm,
     },
     startHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-    startTitle: { color: c.text, fontSize: t.md, fontWeight: "700" },
+    startTitle: { color: c.text, fontSize: t.md, fontWeight: "800" },
     // Dos lineas reservadas: la sugerencia llega despues sin mover nada.
     startText: { color: c.text, fontSize: t.md, lineHeight: t.line(t.md), minHeight: t.line(t.md) * 2 },
+    // La tarea de ahora: el unico bloque con marcador amarillo.
     next: {
       gap: spacing.sm,
-      paddingBottom: spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: c.border,
+      padding: spacing.md,
+      backgroundColor: c.highlight,
+      borderRadius: radius.sm,
     },
-    nextLabel: { color: c.primary, fontSize: t.sm, fontWeight: "700" },
-    nextTitle: { flex: 1, color: c.text, fontSize: t.lg, fontWeight: "700" },
+    nextLabel: { color: c.onHighlight, fontSize: t.sm, fontWeight: "800" },
+    nextTitle: { flex: 1, color: c.onHighlight, fontSize: t.lg, fontWeight: "800" },
     row: {
       flexDirection: "row",
       alignItems: "center",
       gap: spacing.sm,
       minHeight: minTouchTarget,
     },
-    rowTime: { minWidth: 104, color: c.textMuted, fontSize: t.sm, fontVariant: ["tabular-nums"] },
+    // Evento sobre la linea de tiempo: regla de tinta a la izquierda.
+    eventRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      minHeight: minTouchTarget,
+      borderLeftWidth: 3,
+      borderLeftColor: c.primary,
+      paddingLeft: spacing.sm,
+    },
+    rowTime: { minWidth: 112, color: c.text, fontSize: t.sm, ...mono("700") },
     rowText: { flex: 1, color: c.text, fontSize: t.md, lineHeight: t.line(t.md) },
     rowTextDone: { color: c.textMuted, textDecorationLine: "line-through" },
     check: {
@@ -133,36 +162,37 @@ export function HomeDashboard({
       gap: spacing.xs,
       paddingHorizontal: spacing.sm,
     },
-    undoText: { color: c.primary, fontSize: t.sm, fontWeight: "700" },
+    undoText: { color: c.text, fontSize: t.sm, fontWeight: "800" },
     streakRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-    streakNum: { color: c.text, fontSize: t.xxl, fontWeight: "800" },
+    streakNum: { color: c.text, fontSize: t.xxl, ...mono("700") },
     streakLabel: { color: c.textMuted, fontSize: t.sm },
     bars: { flex: 1, flexDirection: "row", alignItems: "flex-end", gap: 6, height: 56 },
     barCol: { flex: 1, alignItems: "center", justifyContent: "flex-end", gap: 4, height: "100%" },
     bar: { width: "100%", borderRadius: 4 },
-    barDay: { color: c.textMuted, fontSize: t.xs },
+    barDay: { color: c.textMuted, fontSize: t.xs, ...mono("500") },
     stats: { flexDirection: "row", gap: spacing.sm },
     stat: {
       flex: 1,
-      backgroundColor: c.background,
-      borderRadius: radius.md,
+      backgroundColor: c.primarySoft,
+      borderRadius: radius.sm,
       padding: spacing.sm,
       alignItems: "center",
     },
-    statNum: { color: c.text, fontSize: t.lg, fontWeight: "700" },
+    statNum: { color: c.text, fontSize: t.lg, ...mono("700") },
     statLabel: { color: c.textMuted, fontSize: t.xs, textAlign: "center" },
     slot: {
       minHeight: minTouchTarget,
-      borderRadius: radius.md,
-      borderWidth: 1,
-      borderColor: c.border,
+      borderRadius: radius.sm,
+      borderWidth: 2,
+      borderStyle: "dashed",
+      borderColor: c.primary,
       paddingHorizontal: spacing.md,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
     },
-    slotTime: { color: c.text, fontSize: t.md, fontWeight: "600" },
-    slotHint: { color: c.primary, fontSize: t.sm, fontWeight: "700" },
+    slotTime: { color: c.text, fontSize: t.md, ...mono("700") },
+    slotHint: { color: c.text, fontSize: t.sm, fontWeight: "800" },
     actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
     action: {
       minHeight: minTouchTarget,
@@ -170,9 +200,9 @@ export function HomeDashboard({
       alignItems: "center",
       gap: spacing.sm,
       paddingHorizontal: spacing.md,
-      borderRadius: radius.pill,
-      borderWidth: 1,
-      borderColor: c.border,
+      borderRadius: radius.sm,
+      borderWidth: 2,
+      borderColor: c.primary,
       backgroundColor: c.surface,
     },
     actionText: { color: c.text, fontSize: t.md, fontWeight: "600" },
@@ -297,7 +327,7 @@ export function HomeDashboard({
           <Icon
             name={done ? "checkCircle" : "circle"}
             size={24}
-            color={done ? colors.success : colors.textMuted}
+            color={big ? colors.onHighlight : done ? colors.success : colors.textMuted}
           />
         </Pressable>
         <Text style={[big ? styles.nextTitle : styles.rowText, done && styles.rowTextDone]} numberOfLines={2}>
@@ -310,8 +340,8 @@ export function HomeDashboard({
             onPress={() => toggleTask(task)}
             style={styles.undo}
           >
-            <Icon name="undo" size={16} color={colors.primary} />
-            <Text style={styles.undoText}>Deshacer</Text>
+            <Icon name="undo" size={16} color={big ? colors.onHighlight : colors.text} />
+            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Deshacer</Text>
           </Pressable>
         )}
       </View>
@@ -445,7 +475,7 @@ export function HomeDashboard({
 
       <View style={styles.start}>
         <View style={styles.startHead}>
-          <Icon name="sparkles" size={18} color={colors.primary} />
+          <Icon name="sparkles" size={18} color={colors.text} />
           <Text accessibilityRole="header" style={styles.startTitle}>
             Para empezar
           </Text>
@@ -473,7 +503,7 @@ export function HomeDashboard({
                 onPress={() => onQuickAction(a.prompt)}
                 style={({ pressed }) => [styles.action, pressed && { opacity: 0.8 }]}
               >
-                <Icon name={a.icon} size={18} color={colors.primary} />
+                <Icon name={a.icon} size={18} color={colors.text} />
                 <Text style={styles.actionText}>{a.label}</Text>
               </Pressable>
             ))}
@@ -495,7 +525,7 @@ export function HomeDashboard({
           return (
             <>
               {upcoming.slice(0, MAX_EVENTS).map((e) => (
-                <View key={e.id} style={styles.row}>
+                <View key={e.id} style={styles.eventRow}>
                   <Text style={styles.rowTime}>
                     {e.all_day ? "Todo el día" : `${fmtTime(e.start)} – ${fmtTime(e.end)}`}
                   </Text>

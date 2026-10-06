@@ -8,52 +8,75 @@ export interface Colors {
   surface: string;
   surfaceRaised: string;
   border: string;
+  /** Borde de controles (inputs, segmentados): >= 3:1 (WCAG 1.4.11). `border` es solo filete decorativo. */
+  controlBorder: string;
   text: string;
   textMuted: string;
+  /** Tinta: botones, barras de seccion y marca de pestana activa. */
   primary: string;
-  primarySoft: string; // fondo tintado para estados activos / chips
+  primarySoft: string; // fondo tenue para estados activos / chips
   onPrimary: string;
   danger: string;
   success: string;
   warning: string;
-  /** boxShadow de las tarjetas: profundidad suave; en oscuro basta el borde. */
+  /** Unico acento: marcador amarillo, reservado para "lo que toca ahora". */
+  highlight: string;
+  onHighlight: string;
+  /** Paginas de revision de la hoja de llamado: tinte de la cabecera de Inicio. */
+  dayMorning: string;
+  dayAfternoon: string;
+  dayNight: string;
+  /** boxShadow opcional; la hoja es plana, queda vacio. */
   shadow: string;
   /** Anillo de foco del teclado (web). */
   focus: string;
 }
 
+// Lenguaje "hoja de llamado": tinta sobre papel, reglas finas, sin tarjetas.
 export const darkColors: Colors = {
-  background: "#0f1115",
-  surface: "#171a21",
-  surfaceRaised: "#1f232d",
-  border: "#2c313d",
-  text: "#f2f3f5",
-  textMuted: "#9aa0ab",
-  primary: "#6c9bff",
-  primarySoft: "#1d2a47",
-  onPrimary: "#0b1020",
-  danger: "#ef7b70",
-  success: "#5cbd8a",
+  background: "#121214",
+  surface: "#1a1a1e",
+  surfaceRaised: "#222228",
+  border: "#3a3a42",
+  controlBorder: "#7d7d89",
+  text: "#f1f1ec",
+  textMuted: "#a4a4ae",
+  primary: "#f1f1ec",
+  primarySoft: "#26262c",
+  onPrimary: "#121214",
+  danger: "#f08a80",
+  success: "#63c48f",
   warning: "#e7b25a",
+  highlight: "#ffe14d",
+  onHighlight: "#14141a",
+  dayMorning: "#1a2640",
+  dayAfternoon: "#3a1d29",
+  dayNight: "#173326",
   shadow: "",
-  focus: "#9db8ff",
+  focus: "#8fb0ff",
 };
 
 export const lightColors: Colors = {
-  background: "#f6f5f1",
+  background: "#f9f9f6",
   surface: "#ffffff",
   surfaceRaised: "#ffffff",
-  border: "#e3e0d7",
-  text: "#1a1c22",
-  textMuted: "#575b67",
-  primary: "#3050d0",
-  primarySoft: "#e9edfb",
-  onPrimary: "#ffffff",
-  danger: "#c4402f",
-  success: "#237a52",
-  warning: "#9a6a12",
-  shadow: "0 1px 2px rgba(26, 28, 34, 0.05), 0 8px 20px rgba(26, 28, 34, 0.06)",
-  focus: "#3050d0",
+  border: "#c9c9c2",
+  controlBorder: "#8a8a92",
+  text: "#14141a",
+  textMuted: "#55555f",
+  primary: "#14141a",
+  primarySoft: "#ecece6",
+  onPrimary: "#f9f9f6",
+  danger: "#b3261e",
+  success: "#1f7a4d",
+  warning: "#8a5a00",
+  highlight: "#ffe14d",
+  onHighlight: "#14141a",
+  dayMorning: "#dfe9fb",
+  dayAfternoon: "#fbe1e8",
+  dayNight: "#dcefe3",
+  shadow: "",
+  focus: "#2547c9",
 };
 
 export const spacing = {
@@ -64,10 +87,11 @@ export const spacing = {
   xl: 32,
 };
 
+// Esquinas casi rectas: la hoja es papel, no burbujas.
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 18,
+  sm: 4,
+  md: 6,
+  lg: 8,
   pill: 999,
 };
 
@@ -101,4 +125,12 @@ export const FONT_FILES = {
   "600": "AtkinsonHyperlegibleNext_600SemiBold",
   "700": "AtkinsonHyperlegibleNext_700Bold",
   "800": "AtkinsonHyperlegibleNext_800ExtraBold",
+} as const;
+
+// Atkinson Hyperlegible Mono para horas y cifras: columnas alineadas y
+// ceros distinguibles de la o.
+export const FONT_MONO_FAMILY = "Atkinson Hyperlegible Mono";
+export const FONT_MONO_FILES = {
+  "500": "AtkinsonHyperlegibleMono_500Medium",
+  "700": "AtkinsonHyperlegibleMono_700Bold",
 } as const;

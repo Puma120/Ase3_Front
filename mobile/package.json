@@ -9,6 +9,7 @@
     "ios": "expo start --ios"
   },
   "dependencies": {
+    "@expo-google-fonts/atkinson-hyperlegible-mono": "^0.4.1",
     "@expo-google-fonts/atkinson-hyperlegible-next": "^0.4.1",
     "expo": "^57.0.25",
     "expo-font": "~57.0.4",

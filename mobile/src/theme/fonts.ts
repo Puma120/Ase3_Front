@@ -5,17 +5,27 @@
 // archivo y fontWeight se quita.
 import { Platform } from "react-native";
 
-import { FONT_FAMILY, FONT_FILES } from "./tokens";
+import { FONT_FAMILY, FONT_FILES, FONT_MONO_FAMILY, FONT_MONO_FILES } from "./tokens";
 
 const WEB_STACK = `"${FONT_FAMILY}", system-ui, -apple-system, "Segoe UI", sans-serif`;
 
 type Weight = keyof typeof FONT_FILES;
 const isWeight = (w: unknown): w is Weight => typeof w === "string" && w in FONT_FILES;
 
+const WEB_MONO = `"${FONT_MONO_FAMILY}", ui-monospace, "Cascadia Mono", Consolas, monospace`;
+
+// Horas y cifras en la mono: spread en el estilo (`...mono("700")`). Ya trae
+// su familia, asi que withFont lo deja intacto.
+export function mono(weight: keyof typeof FONT_MONO_FILES = "500") {
+  return Platform.OS === "web"
+    ? { fontFamily: WEB_MONO, fontWeight: weight }
+    : { fontFamily: FONT_MONO_FILES[weight] };
+}
+
 export function withFont<T extends Record<string, unknown>>(styles: T): T {
   const out: Record<string, unknown> = {};
   for (const [key, style] of Object.entries(styles)) {
-    if (!style || typeof style !== "object" || !("fontSize" in style)) {
+    if (!style || typeof style !== "object" || !("fontSize" in style) || "fontFamily" in style) {
       out[key] = style;
       continue;
     }

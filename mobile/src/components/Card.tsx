@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactNode } from "react";
 import { Text, View } from "react-native";
 
 import { useStyles, useTheme } from "../theme/useTheme";
-import { radius, spacing } from "../theme/tokens";
+import { minTouchTarget, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface CardProps extends PropsWithChildren {
@@ -16,22 +16,25 @@ interface CardProps extends PropsWithChildren {
 export function Card({ title, icon, trailing, children }: CardProps) {
   const { colors } = useTheme();
   const styles = useStyles((c, t) => ({
+    // Hoja de llamado: regla gruesa de tinta arriba y papel debajo; sin caja.
     card: {
       backgroundColor: c.surface,
-      borderRadius: radius.lg,
-      borderWidth: 1,
-      borderColor: c.border,
-      padding: spacing.md,
+      borderTopWidth: 3,
+      borderTopColor: c.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.md,
       gap: spacing.sm,
-      ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
-    header: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-    title: { flex: 1, color: c.text, fontSize: t.md, fontWeight: "700" },
+    header: { flexDirection: "row", alignItems: "center", gap: spacing.sm, minHeight: minTouchTarget - spacing.sm },
+    title: { flex: 1, color: c.text, fontSize: t.md, fontWeight: "800" },
   }));
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Icon name={icon} size={18} color={colors.primary} />
+        <Icon name={icon} size={18} color={colors.text} />
         <Text accessibilityRole="header" style={styles.title}>
           {title}
         </Text>
