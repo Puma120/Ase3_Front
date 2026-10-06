@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BackHandler, Platform, Pressable, Text, View } from "react-native";
 
 import { Icon, IconName } from "../components/Icon";
-import { minTouchTarget, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 import { resumeLocation } from "../native/location";
 import { resumePush } from "../native/push";
@@ -47,11 +47,18 @@ export function HomeScreen() {
       flexDirection: "row",
       borderTopWidth: 1,
       borderTopColor: c.border,
+      borderTopLeftRadius: radius.lg,
+      borderTopRightRadius: radius.lg,
       backgroundColor: c.surface,
     },
     // Pestana activa: regla de tinta arriba, icono y texto en tinta y negrita.
-    tabRule: { height: 4, width: "100%", backgroundColor: "transparent", marginBottom: spacing.xs },
-    tabRuleActive: { backgroundColor: c.primary },
+    tabPill: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.pill,
+      marginTop: spacing.xs,
+    },
+    tabPillActive: { backgroundColor: c.highlight },
     tabButton: {
       flex: 1,
       minHeight: minTouchTarget + spacing.md,
@@ -155,8 +162,9 @@ export function HomeScreen() {
                 style={styles.tabButton}
                 onPress={() => goTo(key)}
               >
-                <View style={[styles.tabRule, active && styles.tabRuleActive]} />
-                <Icon name={icon} size={22} color={active ? colors.text : colors.textMuted} />
+                <View style={[styles.tabPill, active && styles.tabPillActive]}>
+                  <Icon name={icon} size={22} color={active ? colors.onHighlight : colors.textMuted} />
+                </View>
                 <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{label}</Text>
               </Pressable>
             );

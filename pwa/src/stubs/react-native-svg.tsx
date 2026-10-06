@@ -14,3 +14,7 @@ export const Polyline = el("polyline");
 export const Line = el("line");
 export const Circle = el("circle");
 export const Rect = el("rect");
+export const Ellipse = el("ellipse");
+export const Defs = el("defs");
+export const LinearGradient = el("linearGradient");
+export const Stop = el("stop");

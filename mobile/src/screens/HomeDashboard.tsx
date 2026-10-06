@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import { Card, MutedText } from "../components/Card";
 import { Collapsible } from "../components/Collapsible";
 import { Icon, IconName } from "../components/Icon";
+import { SkyHeader } from "../components/SkyHeader";
 import {
   completeTask,
   getFreeSlots,
@@ -61,12 +62,6 @@ const MAX_SLOTS = 2;
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
 
-// Pagina de la "hoja de llamado" segun la hora: tinte de la cabecera.
-function dayTint(): "dayMorning" | "dayAfternoon" | "dayNight" {
-  const h = new Date().getHours();
-  return h < 12 ? "dayMorning" : h < 19 ? "dayAfternoon" : "dayNight";
-}
-
 function greeting(): string {
   const h = new Date().getHours();
   return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
@@ -93,40 +88,30 @@ export function HomeDashboard({
       maxWidth: contentMaxWidth,
       alignSelf: "center",
       paddingBottom: spacing.lg,
-      gap: spacing.md,
     },
-    // Cabecera tintada segun el momento del dia (manana / tarde / noche).
-    header: {
-      gap: 2,
-      padding: spacing.md,
-      paddingTop: spacing.lg,
-      backgroundColor: c[dayTint()],
-      borderBottomWidth: 3,
-      borderBottomColor: c.primary,
-    },
+    body: { padding: spacing.md, gap: spacing.md },
     title: { color: c.text, fontSize: t.xl, fontWeight: "800" },
     date: { color: c.text, fontSize: t.sm, ...mono("500") },
     start: {
       backgroundColor: c.surface,
-      borderTopWidth: 3,
-      borderTopColor: c.primary,
-      borderBottomWidth: 1,
-      borderBottomColor: c.border,
-      paddingHorizontal: spacing.md,
-      paddingTop: spacing.sm,
-      paddingBottom: spacing.md,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: c.border,
+      padding: spacing.md,
       gap: spacing.sm,
+      ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
     startHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
     startTitle: { color: c.text, fontSize: t.md, fontWeight: "800" },
     // Dos lineas reservadas: la sugerencia llega despues sin mover nada.
     startText: { color: c.text, fontSize: t.md, lineHeight: t.line(t.md), minHeight: t.line(t.md) * 2 },
-    // La tarea de ahora: el unico bloque con marcador amarillo.
+    // La tarea de ahora: la "piedra" durazno, unico bloque con el acento.
     next: {
       gap: spacing.sm,
       padding: spacing.md,
       backgroundColor: c.highlight,
-      borderRadius: radius.sm,
+      borderRadius: radius.lg,
+      ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
     nextLabel: { color: c.onHighlight, fontSize: t.sm, fontWeight: "800" },
     nextTitle: { flex: 1, color: c.onHighlight, fontSize: t.lg, fontWeight: "800" },
@@ -142,8 +127,9 @@ export function HomeDashboard({
       alignItems: "center",
       gap: spacing.sm,
       minHeight: minTouchTarget,
-      borderLeftWidth: 3,
-      borderLeftColor: c.primary,
+      borderLeftWidth: 4,
+      borderLeftColor: c.highlight,
+      borderRadius: 2,
       paddingLeft: spacing.sm,
     },
     rowTime: { minWidth: 112, color: c.text, fontSize: t.sm, ...mono("700") },
@@ -174,7 +160,7 @@ export function HomeDashboard({
     stat: {
       flex: 1,
       backgroundColor: c.primarySoft,
-      borderRadius: radius.sm,
+      borderRadius: radius.md,
       padding: spacing.sm,
       alignItems: "center",
     },
@@ -182,10 +168,10 @@ export function HomeDashboard({
     statLabel: { color: c.textMuted, fontSize: t.xs, textAlign: "center" },
     slot: {
       minHeight: minTouchTarget,
-      borderRadius: radius.sm,
+      borderRadius: radius.md,
       borderWidth: 2,
       borderStyle: "dashed",
-      borderColor: c.primary,
+      borderColor: c.controlBorder,
       paddingHorizontal: spacing.md,
       flexDirection: "row",
       alignItems: "center",
@@ -200,9 +186,9 @@ export function HomeDashboard({
       alignItems: "center",
       gap: spacing.sm,
       paddingHorizontal: spacing.md,
-      borderRadius: radius.sm,
-      borderWidth: 2,
-      borderColor: c.primary,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: c.controlBorder,
       backgroundColor: c.surface,
     },
     actionText: { color: c.text, fontSize: t.md, fontWeight: "600" },
@@ -442,13 +428,14 @@ export function HomeDashboard({
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
+      <SkyHeader>
         <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
           {greeting()}
           {firstName ? `, ${firstName}` : ""}
         </Text>
         <Text style={styles.date}>{today}</Text>
-      </View>
+      </SkyHeader>
+      <View style={styles.body}>
 
       {/* Avisos con hora ("Sal ya", "en 10 minutos"): nunca ocultos. */}
       {unreadAlerts.length > 0 && (
@@ -592,6 +579,7 @@ export function HomeDashboard({
       <Text style={styles.srOnly} aria-live="polite">
         {announcement}
       </Text>
+      </View>
     </ScrollView>
   );
 }

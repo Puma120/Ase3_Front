@@ -13,6 +13,8 @@ export type TextSizePref = "normal" | "large" | "xlarge";
 export interface Preferences {
   theme: ThemePref;
   textSize: TextSizePref;
+  /** Companero ilustrado (decorativo). Opcional: quien lo prefiere sobrio lo apaga. */
+  mascot: boolean;
 }
 
 export const TEXT_SCALE: Record<TextSizePref, number> = {
@@ -22,7 +24,7 @@ export const TEXT_SCALE: Record<TextSizePref, number> = {
 };
 
 const STORAGE_KEY = "ase3_prefs";
-const DEFAULTS: Preferences = { theme: "system", textSize: "normal" };
+const DEFAULTS: Preferences = { theme: "system", textSize: "normal", mascot: true };
 
 let prefs: Preferences = { ...DEFAULTS, ...getJSON<Partial<Preferences>>(STORAGE_KEY, {}) };
 const listeners = new Set<() => void>();

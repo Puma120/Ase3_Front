@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactNode } from "react";
 import { Text, View } from "react-native";
 
 import { useStyles, useTheme } from "../theme/useTheme";
-import { minTouchTarget, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface CardProps extends PropsWithChildren {
@@ -16,17 +16,17 @@ interface CardProps extends PropsWithChildren {
 export function Card({ title, icon, trailing, children }: CardProps) {
   const { colors } = useTheme();
   const styles = useStyles((c, t) => ({
-    // Hoja de llamado: regla gruesa de tinta arriba y papel debajo; sin caja.
+    // Superficie suave: esquinas amplias, filete calido y sombra tintada.
     card: {
       backgroundColor: c.surface,
-      borderTopWidth: 3,
-      borderTopColor: c.primary,
-      borderBottomWidth: 1,
-      borderBottomColor: c.border,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: c.border,
       paddingHorizontal: spacing.md,
       paddingTop: spacing.sm,
       paddingBottom: spacing.md,
       gap: spacing.sm,
+      ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
     header: { flexDirection: "row", alignItems: "center", gap: spacing.sm, minHeight: minTouchTarget - spacing.sm },
     title: { flex: 1, color: c.text, fontSize: t.md, fontWeight: "800" },

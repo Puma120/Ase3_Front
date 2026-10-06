@@ -449,6 +449,21 @@ export function SettingsScreen({ active }: { active: boolean }) {
           ]}
           onChange={(textSize) => setPreferences({ textSize })}
         />
+        {/* Decorativa: no aporta informacion, solo compania. */}
+        <View style={styles.row}>
+          <View style={styles.rowText}>
+            <Text style={styles.rowLabel}>Mascota</Text>
+            <Text style={styles.rowHint}>Muestra un personaje ilustrado en Inicio y en el acceso.</Text>
+          </View>
+          <Switch
+            trackColor={{ true: colors.primary, false: colors.controlBorder }}
+            thumbColor="#ffffff"
+            accessibilityLabel="Mascota"
+            accessibilityHint="Muestra u oculta el personaje ilustrado"
+            value={prefs.mascot}
+            onValueChange={(mascot) => setPreferences({ mascot })}
+          />
+        </View>
       </Card>
 
       {a && (

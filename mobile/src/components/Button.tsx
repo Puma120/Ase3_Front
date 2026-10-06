@@ -30,7 +30,7 @@ export function Button({
   const styles = useStyles((c, t) => ({
     base: {
       minHeight: minTouchTarget,
-      borderRadius: radius.md,
+      borderRadius: radius.pill,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
@@ -41,7 +41,7 @@ export function Button({
     primary: { backgroundColor: c.primary },
     secondary: { backgroundColor: "transparent", borderWidth: 2, borderColor: c.primary },
     disabled: { opacity: 0.5 },
-    pressed: { opacity: 0.85, transform: [{ translateY: 1 }] },
+    pressed: { opacity: 0.88, transform: [{ scale: 0.98 }] },
     label: { fontSize: t.md, fontWeight: "700", textAlign: "center", flexShrink: 1 },
     labelPrimary: { color: c.onPrimary },
     labelSecondary: { color: c.text },

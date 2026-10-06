@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 
 import { headingLevel } from "../components/a11y";
 import { Button } from "../components/Button";
+import { Mascot } from "../components/Mascot";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { setToken } from "../services/authStore";
 import { startGoogleLogin } from "../services/googleAuth";
@@ -17,14 +18,15 @@ export function AuthScreen() {
     mark: {
       alignSelf: "flex-start",
       backgroundColor: c.highlight,
-      borderRadius: radius.sm,
+      borderRadius: radius.pill,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       marginBottom: spacing.md,
     },
     markText: { color: c.onHighlight, fontSize: t.sm, fontWeight: "800" },
     title: { color: c.text, fontSize: t.xxl, fontWeight: "800" },
-    rule: { height: 3, backgroundColor: c.primary, marginVertical: spacing.md },
+    hero: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
+    rule: { height: 4, width: 56, borderRadius: 2, backgroundColor: c.highlight, marginVertical: spacing.md },
     subtitle: { color: c.textMuted, fontSize: t.md, lineHeight: t.line(t.md) },
     error: { color: c.danger, fontSize: t.sm, lineHeight: t.line(t.sm) },
   }));
@@ -51,8 +53,11 @@ export function AuthScreen() {
 
   return (
     <ScreenContainer center>
-      <View style={styles.mark}>
-        <Text style={styles.markText}>Tu día, paso a paso</Text>
+      <View style={styles.hero}>
+        <View style={styles.mark}>
+          <Text style={styles.markText}>Tu día, paso a paso</Text>
+        </View>
+        <Mascot mood="happy" size={88} />
       </View>
       <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
         Agente TDAH

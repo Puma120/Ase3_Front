@@ -32,51 +32,53 @@ export interface Colors {
   focus: string;
 }
 
-// Lenguaje "hoja de llamado": tinta sobre papel, reglas finas, sin tarjetas.
+// Lenguaje "amanecer a noche": papel calido, sombras tintadas, un solo acento
+// durazno (highlight) reservado a "lo que toca ahora". El cielo de la cabecera
+// cambia con la hora (theme/sky.ts).
 export const darkColors: Colors = {
-  background: "#121214",
-  surface: "#1a1a1e",
-  surfaceRaised: "#222228",
-  border: "#3a3a42",
-  controlBorder: "#7d7d89",
-  text: "#f1f1ec",
-  textMuted: "#a4a4ae",
-  primary: "#f1f1ec",
-  primarySoft: "#26262c",
-  onPrimary: "#121214",
-  danger: "#f08a80",
-  success: "#63c48f",
-  warning: "#e7b25a",
-  highlight: "#ffe14d",
-  onHighlight: "#14141a",
-  dayMorning: "#1a2640",
-  dayAfternoon: "#3a1d29",
-  dayNight: "#173326",
-  shadow: "",
-  focus: "#8fb0ff",
+  background: "#17131f",
+  surface: "#231d2f",
+  surfaceRaised: "#2c2539",
+  border: "#3a3249",
+  controlBorder: "#8a7f9b",
+  text: "#f6eee4",
+  textMuted: "#b6abc2",
+  primary: "#f6eee4",
+  primarySoft: "#302841",
+  onPrimary: "#17131f",
+  danger: "#ff9a8f",
+  success: "#7fd3a6",
+  warning: "#f0bd68",
+  highlight: "#ffb36b",
+  onHighlight: "#2a1708",
+  dayMorning: "#2a2140",
+  dayAfternoon: "#3a2230",
+  dayNight: "#1d2440",
+  shadow: "0 6px 18px rgba(8, 4, 20, 0.45)",
+  focus: "#ffd199",
 };
 
 export const lightColors: Colors = {
-  background: "#f9f9f6",
-  surface: "#ffffff",
+  background: "#fbf5ee",
+  surface: "#fffdf9",
   surfaceRaised: "#ffffff",
-  border: "#c9c9c2",
-  controlBorder: "#8a8a92",
-  text: "#14141a",
-  textMuted: "#55555f",
-  primary: "#14141a",
-  primarySoft: "#ecece6",
-  onPrimary: "#f9f9f6",
+  border: "#ecdfce",
+  controlBorder: "#8f7c68",
+  text: "#2a2233",
+  textMuted: "#625869",
+  primary: "#2a2233",
+  primarySoft: "#f3e8f4",
+  onPrimary: "#fffdf9",
   danger: "#b3261e",
   success: "#1f7a4d",
   warning: "#8a5a00",
-  highlight: "#ffe14d",
-  onHighlight: "#14141a",
-  dayMorning: "#dfe9fb",
-  dayAfternoon: "#fbe1e8",
-  dayNight: "#dcefe3",
-  shadow: "",
-  focus: "#2547c9",
+  highlight: "#ffb36b",
+  onHighlight: "#2a1708",
+  dayMorning: "#ffe9d2",
+  dayAfternoon: "#fde0e4",
+  dayNight: "#e4defa",
+  shadow: "0 6px 18px rgba(84, 52, 110, 0.14)",
+  focus: "#7a3fc4",
 };
 
 export const spacing = {
@@ -87,11 +89,11 @@ export const spacing = {
   xl: 32,
 };
 
-// Esquinas casi rectas: la hoja es papel, no burbujas.
+// Esquinas generosas y amables; mas cerradas en lo pequeno.
 export const radius = {
-  sm: 4,
-  md: 6,
-  lg: 8,
+  sm: 10,
+  md: 16,
+  lg: 24,
   pill: 999,
 };
 

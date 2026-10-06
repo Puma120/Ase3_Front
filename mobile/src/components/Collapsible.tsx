@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import { getJSON, setJSON } from "../services/localStore";
 import { useStyles, useTheme } from "../theme/useTheme";
-import { minTouchTarget, spacing } from "../theme/tokens";
+import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { Icon, IconName } from "./Icon";
 
 interface CollapsibleProps extends PropsWithChildren {
@@ -29,11 +29,10 @@ export function Collapsible({ title, icon, summary, storageKey, children }: Coll
       gap: spacing.sm,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderTopWidth: 3,
-      borderTopColor: c.primary,
-      borderBottomWidth: 1,
-      borderBottomColor: c.border,
-      backgroundColor: c.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.primarySoft,
     },
     title: { color: c.text, fontSize: t.md, fontWeight: "800" },
     summary: { flex: 1, color: c.textMuted, fontSize: t.sm, fontWeight: "600" },
