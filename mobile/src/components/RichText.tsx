@@ -1,7 +1,13 @@
 import { ReactNode } from "react";
-import { StyleProp, Text, TextStyle, View } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 
-import { spacing } from "../theme/tokens";
+import { FONT_FILES, spacing } from "../theme/tokens";
+
+// Negrita anidada: en web hereda la familia y solo cambia el peso; en Android
+// cada peso es su propio archivo de fuente (ver theme/fonts.ts).
+const styles = {
+  bold: (Platform.OS === "web" ? { fontWeight: "700" } : { fontFamily: FONT_FILES["700"] }) as TextStyle,
+};
 
 // Markdown minimo para las respuestas del asistente: **negritas**, listas
 // con "-", "*" o "1." y saltos de linea. Sin esto el usuario veria los
@@ -40,7 +46,7 @@ function inline(text: string): ReactNode[] {
     .filter(Boolean)
     .map((part, i) =>
       /^(\*\*|__).+\1$/.test(part) ? (
-        <Text key={i} style={{ fontWeight: "700" }}>
+        <Text key={i} style={styles.bold}>
           {part.slice(2, -2)}
         </Text>
       ) : (

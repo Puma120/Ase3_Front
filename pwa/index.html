@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
     <meta name="description" content="Asistente para organizar tu día: agenda, tareas, alarmas y momentos para concentrarte." />
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -16,7 +16,7 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: #f4f5f8;
+        background-color: #f6f5f1;
       }
       @media (prefers-color-scheme: dark) {
         html, body, #root { background-color: #0f1115; }
@@ -25,6 +25,18 @@
         display: flex;
         flex-direction: column;
       }
+      /* Foco visible del teclado (COGA: saber siempre donde estas). Anillo
+         doble: se ve sobre claro y oscuro. Solo con teclado, no al tocar. */
+      :focus-visible {
+        outline: 3px solid #3050d0;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :focus-visible { outline-color: #9db8ff; box-shadow: 0 0 0 5px rgba(15, 17, 21, 0.9); }
+      }
+      ::selection { background: rgba(48, 80, 208, 0.22); }
       /* Decision 10: si el sistema pide "reducir movimiento", nada se anima. */
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {

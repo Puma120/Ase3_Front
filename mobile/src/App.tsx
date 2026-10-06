@@ -6,6 +6,7 @@ import { setToken } from "./services/authStore";
 import { consumeWebCallbackToken } from "./services/googleAuth";
 import { isLoggedIn, setLoggedIn, subscribe } from "./services/session";
 import { getToken } from "./services/authStore";
+import { useAppFonts } from "./theme/useAppFonts";
 import { useApplyWebTheme } from "./theme/useTheme";
 
 // Root component. Exported so front/pwa can import it directly and render
@@ -23,6 +24,7 @@ export default function App() {
   });
 
   useApplyWebTheme();
+  const fontsReady = useAppFonts();
 
   useEffect(() => {
     if (loggedIn) setLoggedIn(true); // sincroniza el store si habia token guardado
@@ -30,5 +32,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sin la fuente se muestra el fondo vacio un instante, no texto que cambia.
+  if (!fontsReady) return null;
   return loggedIn ? <HomeScreen /> : <AuthScreen />;
 }

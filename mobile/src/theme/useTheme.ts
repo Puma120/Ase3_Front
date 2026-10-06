@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Platform, StyleSheet, useColorScheme } from "react-native";
 
+import { withFont } from "./fonts";
 import { TEXT_SCALE, usePreferences } from "./preferences";
 import { Colors, darkColors, fontSize, lightColors } from "./tokens";
 
@@ -51,7 +52,7 @@ export function useStyles<T extends StyleSheet.NamedStyles<T>>(
 ): T {
   const { colors, type } = useTheme();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => StyleSheet.create(factory(colors, type)), [colors, type]);
+  return useMemo(() => StyleSheet.create(withFont(factory(colors, type))), [colors, type]);
 }
 
 // Web: alinea el color de la barra del navegador y el color-scheme nativo

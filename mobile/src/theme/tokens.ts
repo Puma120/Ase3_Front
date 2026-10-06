@@ -16,6 +16,10 @@ export interface Colors {
   danger: string;
   success: string;
   warning: string;
+  /** boxShadow de las tarjetas: profundidad suave; en oscuro basta el borde. */
+  shadow: string;
+  /** Anillo de foco del teclado (web). */
+  focus: string;
 }
 
 export const darkColors: Colors = {
@@ -31,21 +35,25 @@ export const darkColors: Colors = {
   danger: "#ef7b70",
   success: "#5cbd8a",
   warning: "#e7b25a",
+  shadow: "",
+  focus: "#9db8ff",
 };
 
 export const lightColors: Colors = {
-  background: "#f4f5f8",
+  background: "#f6f5f1",
   surface: "#ffffff",
   surfaceRaised: "#ffffff",
-  border: "#dfe2e9",
-  text: "#14171f",
-  textMuted: "#5d6573",
-  primary: "#2f62d6",
-  primarySoft: "#e6edfc",
+  border: "#e3e0d7",
+  text: "#1a1c22",
+  textMuted: "#575b67",
+  primary: "#3050d0",
+  primarySoft: "#e9edfb",
   onPrimary: "#ffffff",
   danger: "#c4402f",
   success: "#237a52",
   warning: "#9a6a12",
+  shadow: "0 1px 2px rgba(26, 28, 34, 0.05), 0 8px 20px rgba(26, 28, 34, 0.06)",
+  focus: "#3050d0",
 };
 
 export const spacing = {
@@ -59,7 +67,7 @@ export const spacing = {
 export const radius = {
   sm: 8,
   md: 12,
-  lg: 16,
+  lg: 18,
   pill: 999,
 };
 
@@ -82,3 +90,15 @@ export const minTouchTarget = 44;
 // Ancho maximo del contenido: en la PWA de escritorio evita lineas
 // interminables; en movil no tiene efecto.
 export const contentMaxWidth = 720;
+
+// Atkinson Hyperlegible Next (Braille Institute): disenada para que cada letra
+// se distinga de las demas; apoya "usar formas y palabras claras" (COGA). Un
+// archivo por peso porque en Android fontWeight no elige entre familias.
+export const FONT_FAMILY = "Atkinson Hyperlegible Next";
+export const FONT_FILES = {
+  "400": "AtkinsonHyperlegibleNext_400Regular",
+  "500": "AtkinsonHyperlegibleNext_500Medium",
+  "600": "AtkinsonHyperlegibleNext_600SemiBold",
+  "700": "AtkinsonHyperlegibleNext_700Bold",
+  "800": "AtkinsonHyperlegibleNext_800ExtraBold",
+} as const;

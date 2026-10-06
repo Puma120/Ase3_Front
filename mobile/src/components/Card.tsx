@@ -23,6 +23,7 @@ export function Card({ title, icon, trailing, children }: CardProps) {
       borderColor: c.border,
       padding: spacing.md,
       gap: spacing.sm,
+      ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
     header: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
     title: { flex: 1, color: c.text, fontSize: t.md, fontWeight: "700" },
