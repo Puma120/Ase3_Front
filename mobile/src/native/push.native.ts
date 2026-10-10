@@ -11,8 +11,6 @@ import { Platform } from "react-native";
 import { getJSON, setJSON } from "../services/localStore";
 import { registerDevice, unregisterDevice } from "../services/proactiveApi";
 
-type NotificationsModule = typeof import("expo-notifications");
-
 // back/proactive_service elige el canal segun el `sound` del dispositivo.
 export const CHANNEL_SILENT = "avisos_silencio";
 export const CHANNEL_SOUND = "avisos_sonido";

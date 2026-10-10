@@ -14,10 +14,21 @@ export interface ChatReply {
   device_commands: DeviceCommand[];
 }
 
+// Zona IANA del dispositivo (ej. America/Mexico_City). El agente la usa para
+// interpretar "a las 6" en la hora real del usuario, aunque viaje o cambie
+// la zona del telefono sin tocar Ajustes.
+function deviceTimezone(): string | undefined {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function sendMessage(message: string): Promise<ChatReply> {
   return apiFetch<ChatReply>("/agent/chat", {
     method: "POST",
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, timezone: deviceTimezone() }),
   });
 }
 
