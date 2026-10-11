@@ -46,6 +46,12 @@
         "projectId": "cdae9aa2-10ee-40e0-8cd0-a5c3fad454d5"
       }
     },
-    "owner": "puma120"
+    "owner": "puma120",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cdae9aa2-10ee-40e0-8cd0-a5c3fad454d5"
+    }
   }
 }
