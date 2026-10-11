@@ -40,7 +40,7 @@ export interface OutgoingMessage {
 const WELCOME: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  text: "Hola, soy tu asistente. Puedo ayudarte a:\n- agendar en tu calendario\n- crear y dividir tareas\n- revisar tu correo\n- poner una alarma\n\n¿En qué te ayudo?",
+  text: "Hola, soy Oportuno. Puedo ayudarte a:\n- agendar en tu calendario\n- crear y dividir tareas\n- revisar tu correo\n- poner una alarma\n\n¿En qué te ayudo?",
 };
 
 // Atajos para arrancar sin pensar que escribir (menos carga de decision).
@@ -297,7 +297,7 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       <View style={styles.column}>
         <View style={styles.header}>
           <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
-            Chat con tu asistente
+            Chat con Oportuno
           </Text>
         </View>
 

@@ -120,7 +120,7 @@ export function HomeScreen() {
   }, [showTab]);
 
   useEffect(() => {
-    if (isWeb) document.title = `${TABS.find((t) => t.key === tab)!.title} · Agente TDAH`;
+    if (isWeb) document.title = `${TABS.find((t) => t.key === tab)!.title} · Oportuno`;
   }, [tab]);
 
   // Los atajos de Inicio mandan su mensaje de inmediato (un toque) y no

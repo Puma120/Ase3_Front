@@ -60,7 +60,7 @@ export function AuthScreen() {
         <Mascot mood="happy" size={88} />
       </View>
       <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
-        Agente TDAH
+        Oportuno
       </Text>
       <View style={styles.rule} />
       <Text style={styles.subtitle}>Entra con tu cuenta de Google. No necesitas contraseña.</Text>
