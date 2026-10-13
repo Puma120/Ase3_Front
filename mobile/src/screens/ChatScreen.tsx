@@ -290,10 +290,9 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
+    // Android 15+ dibuja de borde a borde y ya no redimensiona la ventana al
+    // abrir el teclado: sin "padding" el campo de texto queda tapado.
+    <KeyboardAvoidingView style={styles.flex} behavior="padding">
       <View style={styles.column}>
         <View style={styles.header}>
           <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
