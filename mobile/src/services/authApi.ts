@@ -34,10 +34,10 @@ export async function registerWithPassword(
   email: string,
   password: string,
   fullName: string,
-): Promise<string> {
-  const { access_token } = await apiFetch<{ access_token: string }>("/auth/register", {
+): Promise<void> {
+  // 202: la cuenta se crea al abrir el enlace del correo de verificacion.
+  await apiFetch<{ detail: string }>("/auth/register", {
     method: "POST",
     body: JSON.stringify({ email, password, full_name: fullName }),
   });
-  return access_token;
 }

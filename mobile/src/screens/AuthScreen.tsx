@@ -45,6 +45,7 @@ export function AuthScreen() {
     error: { color: c.danger, fontSize: t.sm, lineHeight: t.line(t.sm) },
   }));
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
   const [fullName, setFullName] = useState("");
@@ -54,6 +55,7 @@ export function AuthScreen() {
 
   async function handlePasswordSubmit() {
     setError("");
+    setNotice("");
     if (
       !email.trim() ||
       !password ||
@@ -68,10 +70,16 @@ export function AuthScreen() {
     }
     setPasswordLoading(true);
     try {
-      const token =
-        mode === "login"
-          ? await loginWithPassword(email.trim(), password)
-          : await registerWithPassword(email.trim(), password, fullName.trim());
+      if (mode === "register") {
+        await registerWithPassword(email.trim(), password, fullName.trim());
+        setNotice(
+          `Te enviamos un correo a ${email.trim()}. Ábrelo para confirmar tu cuenta y luego inicia sesión.`,
+        );
+        setPassword("");
+        setMode("login");
+        return;
+      }
+      const token = await loginWithPassword(email.trim(), password);
       setToken(token);
       setLoggedIn(true);
     } catch (e) {
@@ -134,6 +142,14 @@ export function AuthScreen() {
             <>
               <Text accessibilityRole="alert" style={styles.error}>
                 {error}
+              </Text>
+              <ScreenContainer.Spacer size="sm" />
+            </>
+          )}
+          {!!notice && (
+            <>
+              <Text accessibilityRole="alert" style={styles.subtitle}>
+                {notice}
               </Text>
               <ScreenContainer.Spacer size="sm" />
             </>
