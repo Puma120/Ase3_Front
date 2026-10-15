@@ -5,9 +5,15 @@
 import { clearToken, getToken } from "./authStore";
 import { setLoggedIn } from "./session";
 
+// Fuera de desarrollo el fallback es el gateway de produccion: `eas update
+// --environment` no lee el .env local, y un bundle sin la variable apuntaba a
+// localhost:8000 (el login abria localhost en el navegador del telefono).
+const PROD_GATEWAY_URL = "https://gateway-production-ebd4.up.railway.app";
+const IS_DEV = typeof __DEV__ !== "undefined" && __DEV__;
+
 export const GATEWAY_URL =
   (typeof process !== "undefined" ? process.env.EXPO_PUBLIC_GATEWAY_URL : undefined) ??
-  "http://localhost:8000";
+  (IS_DEV ? "http://localhost:8000" : PROD_GATEWAY_URL);
 
 export class ApiError extends Error {
   status: number;

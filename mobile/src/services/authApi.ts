@@ -20,3 +20,24 @@ export interface User {
 export async function getMe(): Promise<User> {
   return apiFetch<User>("/auth/users/me");
 }
+
+/** Acceso con email y contrasena, alterno al login con Google. */
+export async function loginWithPassword(email: string, password: string): Promise<string> {
+  const { access_token } = await apiFetch<{ access_token: string }>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  return access_token;
+}
+
+export async function registerWithPassword(
+  email: string,
+  password: string,
+  fullName: string,
+): Promise<string> {
+  const { access_token } = await apiFetch<{ access_token: string }>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password, full_name: fullName }),
+  });
+  return access_token;
+}
