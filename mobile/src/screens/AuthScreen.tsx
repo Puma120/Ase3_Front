@@ -73,7 +73,7 @@ export function AuthScreen() {
       if (mode === "register") {
         await registerWithPassword(email.trim(), password, fullName.trim());
         setNotice(
-          `Te enviamos un correo a ${email.trim()}. Ábrelo para confirmar tu cuenta y luego inicia sesión.`,
+          `Te enviamos un correo a ${email.trim()}. Ábrelo para confirmar tu cuenta y luego inicia sesión. Si no lo ves, revisa la carpeta de spam.`,
         );
         setPassword("");
         setMode("login");
