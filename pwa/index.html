@@ -12,12 +12,14 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <title>Oportuno</title>
     <style>
-      html, body, #root {
+      html, body {
         height: 100%;
         margin: 0;
         padding: 0;
         background-color: #fbf5ee;
       }
+      body { display: flex; flex-direction: column; }
+      #root { flex: 1 1 0; min-height: 0; background-color: #fbf5ee; }
       @media (prefers-color-scheme: dark) {
         html, body, #root { background-color: #17131f; }
       }
@@ -49,6 +51,7 @@
     </style>
   </head>
   <body>
+    <div id="install-root"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

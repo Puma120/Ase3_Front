@@ -7,7 +7,9 @@ import "@fontsource/atkinson-hyperlegible-next/700.css";
 import "@fontsource/atkinson-hyperlegible-next/800.css";
 import "@fontsource/atkinson-hyperlegible-mono/500.css";
 import "@fontsource/atkinson-hyperlegible-mono/700.css";
+import { createRoot } from "react-dom/client";
 import App from "mobile/src/App";
+import InstallBar from "./InstallBar";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -24,3 +26,13 @@ AppRegistry.runApplication("App", {
   rootTag: rootElement as unknown as RootTag,
   initialProps: {},
 });
+
+// Barra de descarga (PWA instalable + APK), fuera del arbol de la app movil.
+const installRoot = document.getElementById("install-root");
+if (installRoot) {
+  createRoot(installRoot).render(<InstallBar />);
+}
+
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
