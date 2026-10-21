@@ -148,6 +148,16 @@ export function HomeDashboard({
       gap: spacing.xs,
       paddingHorizontal: spacing.sm,
     },
+    doneBtn: {
+      minHeight: minTouchTarget,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderWidth: 2,
+      borderColor: c.primary,
+      borderRadius: radius.pill,
+    },
     undoText: { color: c.text, fontSize: t.sm, fontWeight: "800" },
     streakRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
     streakNum: { color: c.text, fontSize: t.xxl, ...mono("700") },
@@ -319,6 +329,17 @@ export function HomeDashboard({
         <Text style={[big ? styles.nextTitle : styles.rowText, done && styles.rowTextDone]} numberOfLines={2}>
           {task.title}
         </Text>
+        {!done && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Completado: ${task.title}`}
+            onPress={() => toggleTask(task)}
+            style={[styles.doneBtn, big && { borderColor: colors.onHighlight }]}
+          >
+            <Icon name="check" size={16} color={big ? colors.onHighlight : colors.text} />
+            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Completado</Text>
+          </Pressable>
+        )}
         {done && (
           <Pressable
             accessibilityRole="button"
