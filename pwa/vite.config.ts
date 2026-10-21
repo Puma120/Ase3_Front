@@ -40,6 +40,13 @@ export default defineConfig(({ mode }) => {
             new URL("./src/stubs/react-native-svg.tsx", import.meta.url),
           ),
         },
+        // Margenes seguros: el navegador ya los resuelve, se sustituye por ceros.
+        {
+          find: /^react-native-safe-area-context$/,
+          replacement: fileURLToPath(
+            new URL("./src/stubs/react-native-safe-area-context.tsx", import.meta.url),
+          ),
+        },
       ],
     },
     // apiClient.ts (compartido con front/mobile) lee process.env.EXPO_PUBLIC_GATEWAY_URL.

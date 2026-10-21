@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BackHandler, Platform, Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, IconName } from "../components/Icon";
 import { minTouchTarget, radius, spacing } from "../theme/tokens";
@@ -38,9 +39,12 @@ function initialTab(): Tab {
 
 export function HomeScreen() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles((c, t) => ({
     flex: { flex: 1, backgroundColor: c.background },
     content: { flex: 1 },
+    // Chat y Ajustes arrancan bajo la barra de estado; Inicio la cubre con su cielo.
+    padded: { paddingTop: insets.top },
     hidden: { display: "none" },
     tabList: { flex: 1, flexDirection: "row" },
     tabBar: {
@@ -50,6 +54,7 @@ export function HomeScreen() {
       borderTopLeftRadius: radius.lg,
       borderTopRightRadius: radius.lg,
       backgroundColor: c.surface,
+      paddingBottom: insets.bottom,
     },
     // Pestana activa: regla de tinta arriba, icono y texto en tinta y negrita.
     tabPill: {
@@ -142,10 +147,10 @@ export function HomeScreen() {
             onOpenSettings={() => goTo("settings")}
           />
         </View>
-        <View style={[styles.content, tab !== "chat" && styles.hidden]}>
+        <View style={[styles.content, styles.padded, tab !== "chat" && styles.hidden]}>
           <ChatScreen active={tab === "chat"} outgoing={outgoing} />
         </View>
-        <View style={[styles.content, tab !== "settings" && styles.hidden]}>
+        <View style={[styles.content, styles.padded, tab !== "settings" && styles.hidden]}>
           <SettingsScreen active={tab === "settings"} />
         </View>
       </View>

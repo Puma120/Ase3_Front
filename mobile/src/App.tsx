@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthScreen } from "./screens/AuthScreen";
 import { HomeScreen } from "./screens/HomeScreen";
@@ -34,5 +35,7 @@ export default function App() {
 
   // Sin la fuente se muestra el fondo vacio un instante, no texto que cambia.
   if (!fontsReady) return null;
-  return loggedIn ? <HomeScreen /> : <AuthScreen />;
+  // SafeAreaProvider: en Android con navegacion de 3 botones o de gestos la app
+  // dibuja bajo las barras del sistema; cada pantalla reserva su margen con esto.
+  return <SafeAreaProvider>{loggedIn ? <HomeScreen /> : <AuthScreen />}</SafeAreaProvider>;
 }

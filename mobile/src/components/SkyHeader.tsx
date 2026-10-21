@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 
 import { bodyArc, SKY, skyPhase } from "../theme/sky";
@@ -16,6 +17,7 @@ const STARS: [number, number, number][] = [
 // (saludo y fecha) va encima y conserva contraste AA en todas las franjas.
 export function SkyHeader({ children, now = new Date() }: PropsWithChildren<{ now?: Date }>) {
   const { scheme } = useTheme();
+  const { top } = useSafeAreaInsets();
   const hour = now.getHours();
   const phase = skyPhase(hour);
   const sky = SKY[scheme][phase];
@@ -57,7 +59,7 @@ export function SkyHeader({ children, now = new Date() }: PropsWithChildren<{ no
         <Path d="M0 140C60 112 120 112 190 136S330 150 400 118V190H0z" fill={sky.hills[0]} />
         <Path d="M0 164C80 142 150 146 230 162S350 170 400 150V190H0z" fill={sky.hills[1]} />
       </Svg>
-      <View style={styles.content}>{children}</View>
+      <View style={[styles.content, { paddingTop: spacing.xl + top }]}>{children}</View>
       <View style={styles.mascot}>
         <Mascot mood={phase === "night" ? "sleepy" : "calm"} size={68} />
       </View>
