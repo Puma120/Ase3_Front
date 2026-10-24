@@ -14,11 +14,23 @@ import { isFocusModeSupported } from "../native/focusMode";
 import {
   disableLocation,
   enableLocation,
+  setChatLocation,
+  isChatLocationEnabled,
   isLocationEnabled,
   isLocationSupported,
   stopLocationTracking,
 } from "../native/location";
-import { disablePush, enablePush, getPushPrefs, isPushSupported, setPushSound, teardownPush } from "../native/push";
+import {
+  disablePush,
+  enablePush,
+  getPushPrefs,
+  isBubbleSupported,
+  isPushSupported,
+  openBubbleSettings,
+  setPushBubble,
+  setPushSound,
+  teardownPush,
+} from "../native/push";
 import { AgentParams, getAgentParams, updateAgentParams } from "../services/agentApi";
 import { ApiError } from "../services/apiClient";
 import { getMe } from "../services/authApi";
@@ -101,7 +113,9 @@ export function SettingsScreen({ active }: { active: boolean }) {
   const [googleError, setGoogleError] = useState("");
   const [pushOn, setPushOn] = useState(() => getPushPrefs().enabled);
   const [pushSound, setPushSoundState] = useState(() => getPushPrefs().sound);
+  const [pushBubble, setPushBubbleState] = useState(() => getPushPrefs().bubble);
   const [locationOn, setLocationOn] = useState(isLocationEnabled);
+  const [chatLocationOn, setChatLocationOn] = useState(isChatLocationEnabled);
 
   useEffect(() => {
     if (settings.data) setTimezone(settings.data.timezone);
@@ -169,6 +183,21 @@ export function SettingsScreen({ active }: { active: boolean }) {
   function togglePushSound(sound: boolean) {
     setPushSoundState(sound);
     void alertsSave.track(() => setPushSound(sound), SAVE_ERROR);
+  }
+
+  function togglePushBubble(bubble: boolean) {
+    setPushBubbleState(bubble);
+    void alertsSave.track(() => setPushBubble(bubble), SAVE_ERROR);
+  }
+
+  function toggleChatLocation(on: boolean) {
+    setChatLocationOn(on);
+    void alertsSave.track(async () => {
+      if (!(await setChatLocation(on))) {
+        setChatLocationOn(false);
+        throw new Error("denied");
+      }
+    }, "Android no dio permiso para la ubicación. Puedes darlo en Ajustes del teléfono > Ubicación.");
   }
 
   function toggleLocation(on: boolean) {
@@ -331,6 +360,28 @@ export function SettingsScreen({ active }: { active: boolean }) {
                   togglePushSound,
                 )}
               {pushOn &&
+                isBubbleSupported() &&
+                switchRow(
+                  "Avisos en burbuja",
+                  "Cada aviso aparece como una burbuja de chat flotante sobre cualquier app, con el chat del asistente dentro.",
+                  pushBubble,
+                  togglePushBubble,
+                )}
+              {pushOn && isBubbleSupported() && pushBubble && (
+                <>
+                  <MutedText>
+                    Si no aparece la burbuja, Android debe permitirlas:
+                    Ajustes del teléfono, Notificaciones, Burbujas.
+                  </MutedText>
+                  <Button
+                    variant="secondary"
+                    icon="settings"
+                    label="Abrir ajustes de burbujas"
+                    onPress={() => void openBubbleSettings()}
+                  />
+                </>
+              )}
+              {pushOn &&
                 switchRow(
                   "Horas de silencio",
                   "En estas horas los avisos no llegan al teléfono. Los ves después en Inicio.",
@@ -359,6 +410,13 @@ export function SettingsScreen({ active }: { active: boolean }) {
               )}
             </>
           )}
+          {isLocationSupported() &&
+            switchRow(
+              "Usar mi ubicación en el chat",
+              "Al preguntar por lugares o trayectos, el asistente sabe dónde estás sin que se lo digas. Solo se usa al enviar un mensaje.",
+              chatLocationOn,
+              toggleChatLocation,
+            )}
           {isLocationSupported() &&
             switchRow(
               "Avisarme a qué hora salir",

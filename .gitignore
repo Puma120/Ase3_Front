@@ -8,3 +8,7 @@ mobile/.expo/
 
 # Vite build output
 pwa/dist/
+
+# Nativo generado por expo prebuild (EAS lo regenera en cada build)
+mobile/android/
+mobile/ios/

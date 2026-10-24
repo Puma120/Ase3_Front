@@ -2,6 +2,7 @@
 // gateway, /agent/chat). Contrato espejado de
 // back/agent_service/app/schemas/chat.py.
 
+import { getChatLocation } from "../native/location";
 import { apiFetch } from "./apiClient";
 
 export interface DeviceCommand {
@@ -25,10 +26,11 @@ function deviceTimezone(): string | undefined {
   }
 }
 
-export function sendMessage(message: string): Promise<ChatReply> {
+export async function sendMessage(message: string): Promise<ChatReply> {
+  const where = await getChatLocation();
   return apiFetch<ChatReply>("/agent/chat", {
     method: "POST",
-    body: JSON.stringify({ message, timezone: deviceTimezone() }),
+    body: JSON.stringify({ message, timezone: deviceTimezone(), lat: where?.lat, lng: where?.lng }),
   });
 }
 

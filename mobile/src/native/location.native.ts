@@ -15,6 +15,7 @@ import { putLocation } from "../services/proactiveApi";
 
 const TASK_NAME = "ase3-background-location";
 const PREFS_KEY = "ase3_location";
+const CHAT_KEY = "ase3_chat_location";
 
 // defineTask debe ejecutarse al cargar el bundle (index.ts lo importa) para
 // que Android pueda despertar la tarea con la app cerrada.
@@ -30,6 +31,44 @@ TaskManager.defineTask<{ locations: Location.LocationObject[] }>(TASK_NAME, asyn
 
 export function isLocationSupported(): boolean {
   return Platform.OS === "android";
+}
+
+/** "Usar mi ubicacion en el chat": solo en primer plano, al enviar un mensaje. */
+export function isChatLocationEnabled(): boolean {
+  return getJSON<{ enabled: boolean }>(CHAT_KEY, { enabled: false }).enabled;
+}
+
+/** Desde el interruptor de Ajustes: aqui si se pide el permiso. false si lo nego. */
+export async function setChatLocation(on: boolean): Promise<boolean> {
+  if (on) {
+    let fg = await Location.getForegroundPermissionsAsync();
+    if (fg.status !== "granted" && fg.canAskAgain) fg = await Location.requestForegroundPermissionsAsync();
+    if (fg.status !== "granted") {
+      setJSON(CHAT_KEY, { enabled: false });
+      return false;
+    }
+  }
+  setJSON(CHAT_KEY, { enabled: on });
+  return true;
+}
+
+/** Posicion para adjuntar al mensaje del chat; null si esta apagado, sin
+ * permiso o el GPS no responde a tiempo (el mensaje sale igual, sin ella). */
+export async function getChatLocation(): Promise<{ lat: number; lng: number } | null> {
+  if (!isLocationSupported() || !isChatLocationEnabled()) return null;
+  try {
+    if ((await Location.getForegroundPermissionsAsync()).status !== "granted") return null;
+    const recent = await Location.getLastKnownPositionAsync({ maxAge: 2 * 60 * 1000 });
+    const fix =
+      recent ??
+      (await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]));
+    return fix ? { lat: fix.coords.latitude, lng: fix.coords.longitude } : null;
+  } catch {
+    return null;
+  }
 }
 
 export function isLocationEnabled(): boolean {

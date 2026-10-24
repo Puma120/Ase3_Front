@@ -6,6 +6,15 @@ export function isLocationSupported(): boolean {
 export function isLocationEnabled(): boolean {
   return false;
 }
+export function isChatLocationEnabled(): boolean {
+  return false;
+}
+export async function setChatLocation(_on: boolean): Promise<boolean> {
+  return false;
+}
+export async function getChatLocation(): Promise<{ lat: number; lng: number } | null> {
+  return null;
+}
 export async function resumeLocation(): Promise<void> {}
 export async function enableLocation(): Promise<boolean> {
   return false;

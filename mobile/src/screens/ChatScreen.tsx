@@ -18,6 +18,7 @@ import { plainText, RichText } from "../components/RichText";
 import { runDeviceCommands } from "../native/deviceCommands";
 import { ApiError } from "../services/apiClient";
 import { getHistory, sendMessage } from "../services/chatApi";
+import { listNotifications, markAllRead } from "../services/proactiveApi";
 import { getItem, removeItem, setItem } from "../services/localStore";
 import { contentMaxWidth, minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useReducedMotion } from "../theme/useReducedMotion";
@@ -58,7 +59,16 @@ let nextId = 0;
 // Pantalla central del producto: chat con el agente (Objetivo especifico 1
 // del PDF - interfaz para organizar actividades por conversacion). Una sola
 // lista, un solo input, una sola accion a la vez.
-export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: OutgoingMessage | null }) {
+export function ChatScreen({
+  active,
+  outgoing,
+  showReminders = false,
+}: {
+  active: boolean;
+  outgoing: OutgoingMessage | null;
+  /** Burbuja: los avisos sin leer se muestran al final de la conversacion. */
+  showReminders?: boolean;
+}) {
   const { colors } = useTheme();
   const reducedMotion = useReducedMotion();
   const styles = useStyles((c, t) => ({
@@ -179,6 +189,28 @@ export function ChatScreen({ active, outgoing }: { active: boolean; outgoing: Ou
       .catch(() => setShowWelcome(true))
       .finally(() => setHistoryLoaded(true));
   }, []);
+
+  // Burbuja: el aviso que la abrio no esta en el historial del agente, asi que
+  // se agregan los avisos sin leer como mensajes del asistente y se marcan leidos.
+  useEffect(() => {
+    if (!showReminders) return;
+    listNotifications()
+      .then(async (all) => {
+        const unread = all.filter((n) => !n.read).reverse();
+        if (!unread.length) return;
+        setShowWelcome(false);
+        setMessages((prev) => [
+          ...prev,
+          ...unread.map<ChatMessage>((n) => ({
+            id: `n${nextId++}`,
+            role: "assistant",
+            text: n.body ? `${n.title}\n${n.body}` : n.title,
+          })),
+        ]);
+        await markAllRead();
+      })
+      .catch(() => {});
+  }, [showReminders]);
 
   // El borrador se guarda en el dispositivo mientras se escribe.
   useEffect(() => {

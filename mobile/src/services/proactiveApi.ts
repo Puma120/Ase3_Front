@@ -21,10 +21,16 @@ export const putLocation = (lat: number, lng: number, accuracy?: number | null) 
   });
 
 // `sound`: el aviso llega por el canal con sonido o por el silencioso.
-export const registerDevice = (token: string, platform: "android" | "ios" | "web", sound = false) =>
+// `bubble`: llega como burbuja de chat (solo-datos, la app arma la burbuja).
+export const registerDevice = (
+  token: string,
+  platform: "android" | "ios" | "web",
+  sound = false,
+  bubble = false,
+) =>
   apiFetch<void>("/proactive/devices", {
     method: "POST",
-    body: JSON.stringify({ token, platform, sound }),
+    body: JSON.stringify({ token, platform, sound, bubble }),
   });
 
 export const unregisterDevice = (token: string) =>

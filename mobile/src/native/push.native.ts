@@ -6,7 +6,8 @@
 // Ajustes (enablePush), nunca al abrir la app; al arrancar, resumePush solo
 // retoma lo que el usuario ya activo. Por defecto los avisos no suenan.
 import Constants, { ExecutionEnvironment } from "expo-constants";
-import { Platform } from "react-native";
+import * as IntentLauncher from "expo-intent-launcher";
+import { Linking, Platform } from "react-native";
 
 import { getJSON, setJSON } from "../services/localStore";
 import { registerDevice, unregisterDevice } from "../services/proactiveApi";
@@ -21,14 +22,22 @@ const PREFS_KEY = "ase3_push";
 export interface PushPrefs {
   enabled: boolean;
   sound: boolean;
+  bubble: boolean;
 }
+
+const DEFAULT_PREFS: PushPrefs = { enabled: false, sound: false, bubble: false };
 
 export function isPushSupported(): boolean {
   return Platform.OS === "android" && !inExpoGo;
 }
 
+// Burbujas de chat: Android 11 (API 30) en adelante.
+export function isBubbleSupported(): boolean {
+  return isPushSupported() && Number(Platform.Version) >= 30;
+}
+
 export function getPushPrefs(): PushPrefs {
-  return getJSON<PushPrefs>(PREFS_KEY, { enabled: false, sound: false });
+  return { ...DEFAULT_PREFS, ...getJSON<Partial<PushPrefs>>(PREFS_KEY, {}) };
 }
 
 function savePushPrefs(prefs: PushPrefs): void {
@@ -62,6 +71,8 @@ function Notifications(): NotificationsModule {
 let currentToken: string | null = null;
 let tokenSubscription: { remove: () => void } | null = null;
 
+const bubbleOn = () => isBubbleSupported() && getPushPrefs().bubble;
+
 const platform = () => (Platform.OS === "ios" ? "ios" : "android") as "ios" | "android";
 
 async function ensureChannels(): Promise<void> {
@@ -85,13 +96,13 @@ async function ensureChannels(): Promise<void> {
 async function register(sound: boolean): Promise<void> {
   const { data } = await Notifications().getDevicePushTokenAsync();
   currentToken = String(data);
-  await registerDevice(currentToken, platform(), sound);
+  await registerDevice(currentToken, platform(), sound, bubbleOn());
 
   // FCM puede rotar el token: se vuelve a registrar el nuevo.
   tokenSubscription?.remove();
   tokenSubscription = Notifications().addPushTokenListener((next) => {
     currentToken = String(next.data);
-    registerDevice(currentToken, platform(), getPushPrefs().sound).catch(() => {});
+    registerDevice(currentToken, platform(), getPushPrefs().sound, bubbleOn()).catch(() => {});
   });
 }
 
@@ -99,11 +110,11 @@ async function register(sound: boolean): Promise<void> {
  * permiso sigue concedido. Nunca muestra el dialogo de permiso. */
 export async function resumePush(): Promise<void> {
   if (!isPushSupported()) return;
-  const stored = getJSON<PushPrefs | null>(PREFS_KEY, null);
+  const stored = getJSON<Partial<PushPrefs> | null>(PREFS_KEY, null);
   const { status } = await Notifications().getPermissionsAsync();
   // Instalaciones anteriores (sin preferencia guardada) que ya habian
   // concedido el permiso: se mantienen los avisos, pero sin sonido.
-  const prefs = stored ?? { enabled: status === "granted", sound: false };
+  const prefs = stored ? getPushPrefs() : { ...DEFAULT_PREFS, enabled: status === "granted" };
   if (!stored) savePushPrefs(prefs);
   if (!prefs.enabled || status !== "granted") return;
   await ensureChannels();
@@ -118,10 +129,10 @@ export async function enablePush(sound: boolean): Promise<boolean> {
   let { status } = await Notifications().getPermissionsAsync();
   if (status !== "granted") ({ status } = await Notifications().requestPermissionsAsync());
   if (status !== "granted") {
-    savePushPrefs({ enabled: false, sound });
+    savePushPrefs({ ...getPushPrefs(), enabled: false, sound });
     return false;
   }
-  savePushPrefs({ enabled: true, sound });
+  savePushPrefs({ ...getPushPrefs(), enabled: true, sound });
   await register(sound);
   return true;
 }
@@ -134,7 +145,25 @@ export async function disablePush(): Promise<void> {
 export async function setPushSound(sound: boolean): Promise<void> {
   const prefs = getPushPrefs();
   savePushPrefs({ ...prefs, sound });
-  if (prefs.enabled && currentToken) await registerDevice(currentToken, platform(), sound);
+  if (prefs.enabled && currentToken) await registerDevice(currentToken, platform(), sound, bubbleOn());
+}
+
+export async function setPushBubble(bubble: boolean): Promise<void> {
+  const prefs = getPushPrefs();
+  savePushPrefs({ ...prefs, bubble });
+  if (prefs.enabled && currentToken) await registerDevice(currentToken, platform(), prefs.sound, isBubbleSupported() && bubble);
+}
+
+// Android decide por app si deja abrir burbujas (Ajustes > Notificaciones >
+// Burbujas); la app no puede activarlo, solo llevar al usuario ahi.
+export async function openBubbleSettings(): Promise<void> {
+  try {
+    await IntentLauncher.startActivityAsync("android.settings.APP_NOTIFICATION_BUBBLE_SETTINGS", {
+      extra: { "android.provider.extra.APP_PACKAGE": "com.ase3.agentetdah" },
+    });
+  } catch {
+    await Linking.openSettings();
+  }
 }
 
 // Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la

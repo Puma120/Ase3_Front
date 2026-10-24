@@ -3,13 +3,14 @@
 export interface PushPrefs {
   enabled: boolean;
   sound: boolean;
+  bubble: boolean;
 }
 
 export function isPushSupported(): boolean {
   return false;
 }
 export function getPushPrefs(): PushPrefs {
-  return { enabled: false, sound: false };
+  return { enabled: false, sound: false, bubble: false };
 }
 export async function resumePush(): Promise<void> {}
 export async function enablePush(_sound: boolean): Promise<boolean> {
@@ -17,4 +18,9 @@ export async function enablePush(_sound: boolean): Promise<boolean> {
 }
 export async function disablePush(): Promise<void> {}
 export async function setPushSound(_sound: boolean): Promise<void> {}
+export function isBubbleSupported(): boolean {
+  return false;
+}
+export async function setPushBubble(_bubble: boolean): Promise<void> {}
+export async function openBubbleSettings(): Promise<void> {}
 export async function teardownPush(): Promise<void> {}
