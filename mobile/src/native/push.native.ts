@@ -2,12 +2,12 @@
 // back/proactive_service y muestra los avisos tambien con la app abierta.
 //
 // Decision 1 del documento de diseno TDAH: nada interrumpe sin permiso. El
-// permiso se pide solo cuando el usuario activa "Avisos en este telefono" en
-// Ajustes (enablePush), nunca al abrir la app; al arrancar, resumePush solo
-// retoma lo que el usuario ya activo. Por defecto los avisos no suenan.
+// permiso se pide solo cuando el usuario lo acepta: en Ajustes (enablePush) o
+// en la pregunta unica de la primera apertura (offerPushOnce); al arrancar,
+// resumePush solo retoma lo que ya activo. Por defecto los avisos no suenan.
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as IntentLauncher from "expo-intent-launcher";
-import { Linking, Platform } from "react-native";
+import { Alert, Linking, Platform } from "react-native";
 
 import { getJSON, setJSON } from "../services/localStore";
 import { registerDevice, unregisterDevice } from "../services/proactiveApi";
@@ -164,6 +164,35 @@ export async function openBubbleSettings(): Promise<void> {
   } catch {
     await Linking.openSettings();
   }
+}
+
+/** Primera apertura: una sola vez ofrece activar los avisos y, si el sistema
+ * lo permite, la burbuja de chat. Es el usuario quien acepta; el permiso del
+ * sistema solo se pide si pulsa "Activar". Despues vive en Ajustes. */
+const OFFERED_KEY = "ase3_push_offered";
+
+export async function offerPushOnce(): Promise<void> {
+  if (!isPushSupported() || getJSON<boolean>(OFFERED_KEY, false) || getPushPrefs().enabled) return;
+  setJSON(OFFERED_KEY, true);
+  const ask = (title: string, message: string, accept: string) =>
+    new Promise<boolean>((resolve) =>
+      Alert.alert(
+        title,
+        message,
+        [
+          { text: "Ahora no", style: "cancel", onPress: () => resolve(false) },
+          { text: accept, onPress: () => resolve(true) },
+        ],
+        { cancelable: true, onDismiss: () => resolve(false) },
+      ),
+    );
+
+  if (!(await ask("Avisos en este telefono", "Recibe tus recordatorios y avisos del agente como notificacion. Por defecto no suenan.", "Activar"))) return;
+  if (!(await enablePush(false))) return;
+  if (!isBubbleSupported()) return;
+  if (!(await ask("Burbuja de chat", "Muestra los recordatorios en una burbuja flotante tipo Messenger. Android te llevara a sus ajustes para permitirlas.", "Permitir"))) return;
+  await setPushBubble(true);
+  await openBubbleSettings();
 }
 
 // Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la

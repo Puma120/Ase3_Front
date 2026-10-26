@@ -13,6 +13,7 @@ export function getPushPrefs(): PushPrefs {
   return { enabled: false, sound: false, bubble: false };
 }
 export async function resumePush(): Promise<void> {}
+export async function offerPushOnce(): Promise<void> {}
 export async function enablePush(_sound: boolean): Promise<boolean> {
   return false;
 }

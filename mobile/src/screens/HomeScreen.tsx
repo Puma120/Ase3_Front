@@ -6,7 +6,7 @@ import { Icon, IconName } from "../components/Icon";
 import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 import { resumeLocation } from "../native/location";
-import { resumePush } from "../native/push";
+import { offerPushOnce, resumePush } from "../native/push";
 import { refreshToken } from "../services/authApi";
 import { setToken } from "../services/authStore";
 import { getItem, setItem } from "../services/localStore";
@@ -81,12 +81,13 @@ export function HomeScreen() {
 
   // Motor proactivo: al entrar se marca al usuario como activo (el tick solo
   // atiende usuarios activos) y se retoman los avisos y la ubicacion SOLO si
-  // el usuario ya los activo en Ajustes: abrir la app nunca pide permisos.
+  // el usuario ya los activo en Ajustes. La primera vez, offerPushOnce
+  // pregunta (una sola vez) si quiere activarlos; el permiso solo se pide si acepta.
   useEffect(() => {
     // Renovacion deslizante: cada vez que entran, el JWT vuelve a tener 30 dias.
     refreshToken().then(setToken).catch(() => {});
     heartbeat().catch(() => {});
-    resumePush().catch(() => {});
+    resumePush().then(offerPushOnce).catch(() => {});
     resumeLocation().catch(() => {});
   }, []);
 
