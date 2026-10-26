@@ -62,7 +62,7 @@ const SAVE_ERROR = "No se pudo guardar el cambio. Revisa tu conexión.";
 
 type Tracker = ReturnType<typeof useSaveState>;
 
-export function SettingsScreen({ active }: { active: boolean }) {
+export function SettingsScreen({ active, onStartOnboarding }: { active: boolean; onStartOnboarding: () => void }) {
   const { colors } = useTheme();
   const prefs = usePreferences();
   const styles = useStyles((c, t) => ({
@@ -483,6 +483,14 @@ export function SettingsScreen({ active }: { active: boolean }) {
           <SaveError state={workSave.state} />
         </Card>
       )}
+
+      <Card title="Mi rutina" icon="calendar">
+        <MutedText>
+          El asistente te pregunta tus horarios (despertar, clases o trabajo, horas ocupadas), los recuerda y los
+          agenda en tu calendario por el tiempo que elijas.
+        </MutedText>
+        <Button variant="secondary" icon="calendar" label="Configurar mi rutina" onPress={onStartOnboarding} />
+      </Card>
 
       <Card title="Apariencia" icon="sun">
         <SegmentedControl<ThemePref>

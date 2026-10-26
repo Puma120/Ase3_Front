@@ -13,6 +13,8 @@ export interface DeviceCommand {
 export interface ChatReply {
   response: string;
   device_commands: DeviceCommand[];
+  /** El agente cerro la configuracion inicial de la rutina en este turno. */
+  onboarding_done?: boolean;
 }
 
 // Zona IANA del dispositivo (ej. America/Mexico_City). El agente la usa para
@@ -26,13 +28,21 @@ function deviceTimezone(): string | undefined {
   }
 }
 
-export async function sendMessage(message: string): Promise<ChatReply> {
+export async function sendMessage(message: string, onboarding = false): Promise<ChatReply> {
   const where = await getChatLocation();
   return apiFetch<ChatReply>("/agent/chat", {
     method: "POST",
-    body: JSON.stringify({ message, timezone: deviceTimezone(), lat: where?.lat, lng: where?.lng }),
+    body: JSON.stringify({ message, timezone: deviceTimezone(), lat: where?.lat, lng: where?.lng, onboarding }),
   });
 }
+
+// Configuracion inicial de la rutina (back/agent_service /agent/onboarding).
+export type OnboardingStatus = "pending" | "done" | "skipped";
+
+export const getOnboarding = () =>
+  apiFetch<{ status: OnboardingStatus }>("/agent/onboarding").then((r) => r.status);
+
+export const skipOnboarding = () => apiFetch<{ status: OnboardingStatus }>("/agent/onboarding/skip", { method: "POST" });
 
 export interface HistoryMessage {
   role: "user" | "assistant";

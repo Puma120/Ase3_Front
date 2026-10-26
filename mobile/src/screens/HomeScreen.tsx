@@ -10,6 +10,7 @@ import { offerPushOnce, resumePush } from "../native/push";
 import { refreshToken } from "../services/authApi";
 import { setToken } from "../services/authStore";
 import { getItem, setItem } from "../services/localStore";
+import { getOnboarding, skipOnboarding } from "../services/chatApi";
 import { heartbeat } from "../services/proactiveApi";
 import { ChatScreen, OutgoingMessage } from "./ChatScreen";
 import { HomeDashboard } from "./HomeDashboard";
@@ -32,10 +33,12 @@ const tabFromHash = (): Tab | null =>
 
 // Al volver a la app se abre la ultima pestana usada (decision 5): en web
 // manda la URL (#chat), si no, lo guardado en el dispositivo.
+// TEMPORAL (prueba de usabilidad): siempre abrir en Inicio. Poner en false
+// para volver a abrir la ultima pestana usada.
+const ALWAYS_OPEN_HOME = true;
+
 function initialTab(): Tab {
-  // TEMPORAL (prueba de usabilidad): siempre abrir en Inicio. Quitar esta
-  // linea para volver a abrir la ultima pestana usada.
-  return "home";
+  if (ALWAYS_OPEN_HOME) return "home";
   const stored = getItem(TAB_KEY);
   return tabFromHash() ?? (isTab(stored) ? stored : "home");
 }
@@ -91,6 +94,15 @@ export function HomeScreen() {
     resumeLocation().catch(() => {});
   }, []);
 
+  // Primera vez (o desde Ajustes): el agente entrevista al usuario sobre su rutina.
+  // Se muestra a pantalla completa; si la consulta falla no se bloquea la app.
+  const [onboarding, setOnboarding] = useState(false);
+  useEffect(() => {
+    getOnboarding()
+      .then((status) => status === "pending" && setOnboarding(true))
+      .catch(() => {});
+  }, []);
+
   const [tab, setTab] = useState<Tab>(initialTab);
   const tabRef = useRef(tab);
   tabRef.current = tab;
@@ -139,6 +151,23 @@ export function HomeScreen() {
     goTo("chat");
   }
 
+  if (onboarding)
+    return (
+      <View style={[styles.flex, styles.padded]}>
+        <ChatScreen
+          active
+          outgoing={null}
+          onboarding={{
+            onFinish: () => setOnboarding(false),
+            onSkip: () => {
+              skipOnboarding().catch(() => {});
+              setOnboarding(false);
+            },
+          }}
+        />
+      </View>
+    );
+
   // Las tres pantallas quedan montadas y solo se ocultan: al cambiar de
   // pestana no se pierde la conversacion, el borrador ni el scroll.
   return (
@@ -155,7 +184,7 @@ export function HomeScreen() {
           <ChatScreen active={tab === "chat"} outgoing={outgoing} />
         </View>
         <View style={[styles.content, styles.padded, tab !== "settings" && styles.hidden]}>
-          <SettingsScreen active={tab === "settings"} />
+          <SettingsScreen active={tab === "settings"} onStartOnboarding={() => setOnboarding(true)} />
         </View>
       </View>
 

@@ -44,6 +44,12 @@ const WELCOME: ChatMessage = {
   text: "Hola, soy Oportuno. Puedo ayudarte a:\n- agendar en tu calendario\n- crear y dividir tareas\n- revisar tu correo\n- poner una alarma\n\nÂ¿En quÃ© te ayudo?",
 };
 
+const ONBOARDING_WELCOME: ChatMessage = {
+  id: "onboarding-welcome",
+  role: "assistant",
+  text: "Hola, soy Oportuno. Para ayudarte de verdad necesito conocer tu rutina.\n\nTe haré unas preguntas, **una por una**:\n- a qué hora te despiertas\n- tus horarios de clases o trabajo\n- las horas que ya tienes ocupadas\n\nLo recordaré y lo agendaré en tu calendario por el tiempo que me digas.",
+};
+
 // Atajos para arrancar sin pensar que escribir (menos carga de decision).
 const SUGGESTIONS = [
   "Â¿QuÃ© tengo pendiente hoy?",
@@ -63,11 +69,14 @@ export function ChatScreen({
   active,
   outgoing,
   showReminders = false,
+  onboarding,
 }: {
   active: boolean;
   outgoing: OutgoingMessage | null;
   /** Burbuja: los avisos sin leer se muestran al final de la conversacion. */
   showReminders?: boolean;
+  /** Primera vez: el agente conduce una entrevista sobre la rutina del usuario. */
+  onboarding?: { onFinish: () => void; onSkip: () => void };
 }) {
   const { colors } = useTheme();
   const reducedMotion = useReducedMotion();
@@ -82,6 +91,8 @@ export function ChatScreen({
       borderBottomRightRadius: radius.lg,
     },
     title: { color: c.text, fontSize: t.lg, fontWeight: "800" },
+    skip: { minHeight: minTouchTarget, justifyContent: "center", alignSelf: "flex-start" },
+    skipText: { color: c.text, fontSize: t.sm, textDecorationLine: "underline" },
     list: { padding: spacing.md, gap: spacing.sm },
     bubbleRow: { flexDirection: "row" },
     bubbleRowUser: { justifyContent: "flex-end" },
@@ -170,12 +181,18 @@ export function ChatScreen({
   const [draft, setDraft] = useState(() => getItem(DRAFT_KEY) ?? "");
   const [sending, setSending] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [onboardingDone, setOnboardingDone] = useState(false);
   const sendingRef = useRef(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const lastNonce = useRef<number | null>(null);
 
   // Al volver a la app se ve la conversacion anterior (decision 5).
   useEffect(() => {
+    // La entrevista empieza limpia: no se muestra la conversacion anterior.
+    if (onboarding) {
+      setHistoryLoaded(true);
+      return;
+    }
     getHistory(30)
       .then((history) => {
         const restored = history.map<ChatMessage>((h) => ({
@@ -238,7 +255,8 @@ export function ChatScreen({
     setAnnouncement("");
 
     try {
-      const reply = await sendMessage(text);
+      const reply = await sendMessage(text, !!onboarding);
+      if (reply.onboarding_done) setOnboardingDone(true);
       const notes = await runDeviceCommands(reply.device_commands);
       const full = notes.length ? `${reply.response}\n\n${notes.join("\n")}` : reply.response;
       setMessages((prev) => [...prev, { id: String(nextId++), role: "assistant", text: full }]);
@@ -271,7 +289,7 @@ export function ChatScreen({
 
   const failed = messages.find((m) => m.failed);
   const hasUserMessages = messages.some((m) => m.role === "user");
-  const data = showWelcome ? [WELCOME, ...messages] : messages;
+  const data = onboarding ? [ONBOARDING_WELCOME, ...messages] : showWelcome ? [WELCOME, ...messages] : messages;
   const canSend = !!draft.trim() && !sending;
 
   function footer() {
@@ -302,6 +320,20 @@ export function ChatScreen({
           />
         </View>
       );
+    if (onboarding && onboardingDone)
+      return <Button icon="check" label="Listo, ir a Oportuno" onPress={onboarding.onFinish} />;
+    if (onboarding)
+      return hasUserMessages ? null : (
+        <View style={styles.chips}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => send("Empecemos", false)}
+            style={({ pressed }) => [styles.chip, pressed && { opacity: 0.8 }]}
+          >
+            <Text style={styles.chipText}>Empezar</Text>
+          </Pressable>
+        </View>
+      );
     if (!hasUserMessages)
       return (
         <View style={styles.chips}>
@@ -328,8 +360,13 @@ export function ChatScreen({
       <View style={styles.column}>
         <View style={styles.header}>
           <Text accessibilityRole="header" {...headingLevel(1)} style={styles.title}>
-            Chat con Oportuno
+            {onboarding ? "Configura tu rutina" : "Chat con Oportuno"}
           </Text>
+          {onboarding && !onboardingDone && (
+            <Pressable accessibilityRole="button" onPress={onboarding.onSkip} style={styles.skip}>
+              <Text style={styles.skipText}>Omitir por ahora</Text>
+            </Pressable>
+          )}
         </View>
 
         <FlatList
