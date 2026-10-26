@@ -332,12 +332,12 @@ export function HomeDashboard({
         {!done && (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Completado: ${task.title}`}
+            accessibilityLabel={`Completar: ${task.title}`}
             onPress={() => toggleTask(task)}
             style={[styles.doneBtn, big && { borderColor: colors.onHighlight }]}
           >
             <Icon name="check" size={16} color={big ? colors.onHighlight : colors.text} />
-            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Completado</Text>
+            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Completar</Text>
           </Pressable>
         )}
         {done && (

@@ -33,6 +33,9 @@ const tabFromHash = (): Tab | null =>
 // Al volver a la app se abre la ultima pestana usada (decision 5): en web
 // manda la URL (#chat), si no, lo guardado en el dispositivo.
 function initialTab(): Tab {
+  // TEMPORAL (prueba de usabilidad): siempre abrir en Inicio. Quitar esta
+  // linea para volver a abrir la ultima pestana usada.
+  return "home";
   const stored = getItem(TAB_KEY);
   return tabFromHash() ?? (isTab(stored) ? stored : "home");
 }
