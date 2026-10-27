@@ -47,7 +47,7 @@ const WELCOME: ChatMessage = {
 const ONBOARDING_WELCOME: ChatMessage = {
   id: "onboarding-welcome",
   role: "assistant",
-  text: "Hola, soy Oportuno. Para ayudarte de verdad necesito conocer tu rutina.\n\nTe haré unas preguntas, **una por una**:\n- a qué hora te despiertas\n- tus horarios de clases o trabajo\n- las horas que ya tienes ocupadas\n\nLo recordaré y lo agendaré en tu calendario por el tiempo que me digas.",
+  text: "Hola, soy Oportuno. Para ayudarte de verdad necesito conocer tu rutina.\n\nTe harÃ© unas preguntas, **una por una**:\n- a quÃ© hora te despiertas\n- tus horarios de clases o trabajo\n- las horas que ya tienes ocupadas\n\nLo recordarÃ© y lo agendarÃ© en tu calendario por el tiempo que me digas.",
 };
 
 // Atajos para arrancar sin pensar que escribir (menos carga de decision).
