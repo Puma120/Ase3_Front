@@ -295,7 +295,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
         </>
       )}
 
-      <Card title="Perfil y Google" icon="user">
+      <Card title="Perfil y Google" icon="user" storageKey="settings_profile">
         <View style={styles.identity}>
           <Text style={styles.name}>{me.data?.full_name ?? "…"}</Text>
           <Text style={styles.email}>{me.data?.email ?? ""}</Text>
@@ -336,7 +336,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
       </Card>
 
       {s && (
-        <Card title="Avisos y enfoque" icon="bell" trailing={<SaveBadge state={alertsSave.state} />}>
+        <Card
+          title="Avisos y enfoque"
+          icon="bell"
+          storageKey="settings_alerts"
+          trailing={<SaveBadge state={alertsSave.state} />}
+        >
           {switchRow(
             "Sugerencias del asistente",
             "El asistente te avisa cuando nota algo, por ejemplo una tarea que pospones mucho.",
@@ -436,7 +441,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
       )}
 
       {s && (
-        <Card title="Jornada y zona horaria" icon="globe" trailing={<SaveBadge state={workSave.state} />}>
+        <Card
+          title="Jornada y zona horaria"
+          icon="globe"
+          storageKey="settings_work"
+          trailing={<SaveBadge state={workSave.state} />}
+        >
           {deviceTimezone !== "" && deviceTimezone !== s.timezone ? (
             <Button
               variant="secondary"
@@ -492,7 +502,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
         <Button variant="secondary" icon="calendar" label="Configurar mi rutina" onPress={onStartOnboarding} />
       </Card>
 
-      <Card title="Apariencia" icon="sun">
+      <Card title="Apariencia" icon="sun" storageKey="settings_appearance">
         <SegmentedControl<ThemePref>
           label="Tema"
           hint="«Sistema» usa el mismo tema que tu teléfono o computadora."

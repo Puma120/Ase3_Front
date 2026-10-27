@@ -105,16 +105,20 @@ export function HomeDashboard({
     startTitle: { color: c.text, fontSize: t.md, fontWeight: "800" },
     // Dos lineas reservadas: la sugerencia llega despues sin mover nada.
     startText: { color: c.text, fontSize: t.md, lineHeight: t.line(t.md), minHeight: t.line(t.md) * 2 },
-    // La tarea de ahora: la "piedra" durazno, unico bloque con el acento.
+    // La tarea de ahora: fondo durazno tenue con franja del acento a la izquierda.
     next: {
       gap: spacing.sm,
       padding: spacing.md,
-      backgroundColor: c.highlight,
+      backgroundColor: c.highlightSoft,
       borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderLeftWidth: 4,
+      borderLeftColor: c.highlight,
       ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
-    nextLabel: { color: c.onHighlight, fontSize: t.sm, fontWeight: "800" },
-    nextTitle: { flex: 1, color: c.onHighlight, fontSize: t.lg, fontWeight: "800" },
+    nextLabel: { color: c.text, fontSize: t.sm, fontWeight: "800" },
+    nextTitle: { flex: 1, color: c.text, fontSize: t.lg, fontWeight: "800" },
     row: {
       flexDirection: "row",
       alignItems: "center",
@@ -323,7 +327,7 @@ export function HomeDashboard({
           <Icon
             name={done ? "checkCircle" : "circle"}
             size={24}
-            color={big ? colors.onHighlight : done ? colors.success : colors.textMuted}
+            color={done ? colors.success : big ? colors.text : colors.textMuted}
           />
         </Pressable>
         <Text style={[big ? styles.nextTitle : styles.rowText, done && styles.rowTextDone]} numberOfLines={2}>
@@ -334,10 +338,10 @@ export function HomeDashboard({
             accessibilityRole="button"
             accessibilityLabel={`Completar: ${task.title}`}
             onPress={() => toggleTask(task)}
-            style={[styles.doneBtn, big && { borderColor: colors.onHighlight }]}
+            style={styles.doneBtn}
           >
-            <Icon name="check" size={16} color={big ? colors.onHighlight : colors.text} />
-            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Completar</Text>
+            <Icon name="check" size={16} color={colors.text} />
+            <Text style={styles.undoText}>Completar</Text>
           </Pressable>
         )}
         {done && (
@@ -347,8 +351,8 @@ export function HomeDashboard({
             onPress={() => toggleTask(task)}
             style={styles.undo}
           >
-            <Icon name="undo" size={16} color={big ? colors.onHighlight : colors.text} />
-            <Text style={[styles.undoText, big && { color: colors.onHighlight }]}>Deshacer</Text>
+            <Icon name="undo" size={16} color={colors.text} />
+            <Text style={styles.undoText}>Deshacer</Text>
           </Pressable>
         )}
       </View>
