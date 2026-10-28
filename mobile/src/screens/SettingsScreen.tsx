@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Switch, Text, View } from "react-native";
 
 import { headingLevel } from "../components/a11y";
 import { Button } from "../components/Button";
@@ -171,13 +171,19 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
 
   function togglePush(on: boolean) {
     setPushOn(on);
-    void alertsSave.track(async () => {
-      if (!on) return disablePush();
-      if (!(await enablePush(pushSound))) {
-        setPushOn(false);
-        throw new Error("denied");
-      }
-    }, "Android no dio permiso para los avisos. Puedes darlo en Ajustes del teléfono > Notificaciones.");
+    void alertsSave.track(
+      async () => {
+        if (!on) return disablePush();
+        const ok = await enablePush(pushSound).catch(() => false);
+        if (!ok) {
+          setPushOn(false);
+          throw new Error("denied");
+        }
+      },
+      Platform.OS === "web"
+        ? "No se pudieron activar los avisos. Revisa que el navegador permita notificaciones para esta página."
+        : "Android no dio permiso para los avisos. Puedes darlo en Ajustes del teléfono > Notificaciones.",
+    );
   }
 
   function togglePushSound(sound: boolean) {
@@ -295,7 +301,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
         </>
       )}
 
-      <Card title="Perfil y Google" icon="user">
+      <Card title="Perfil y Google" icon="user" storageKey="settings_profile">
         <View style={styles.identity}>
           <Text style={styles.name}>{me.data?.full_name ?? "…"}</Text>
           <Text style={styles.email}>{me.data?.email ?? ""}</Text>
@@ -336,7 +342,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
       </Card>
 
       {s && (
-        <Card title="Avisos y enfoque" icon="bell" trailing={<SaveBadge state={alertsSave.state} />}>
+        <Card
+          title="Avisos y enfoque"
+          icon="bell"
+          storageKey="settings_alerts"
+          trailing={<SaveBadge state={alertsSave.state} />}
+        >
           {switchRow(
             "Sugerencias del asistente",
             "El asistente te avisa cuando nota algo, por ejemplo una tarea que pospones mucho.",
@@ -436,7 +447,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
       )}
 
       {s && (
-        <Card title="Jornada y zona horaria" icon="globe" trailing={<SaveBadge state={workSave.state} />}>
+        <Card
+          title="Jornada y zona horaria"
+          icon="globe"
+          storageKey="settings_work"
+          trailing={<SaveBadge state={workSave.state} />}
+        >
           {deviceTimezone !== "" && deviceTimezone !== s.timezone ? (
             <Button
               variant="secondary"
@@ -492,7 +508,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
         <Button variant="secondary" icon="calendar" label="Configurar mi rutina" onPress={onStartOnboarding} />
       </Card>
 
-      <Card title="Apariencia" icon="sun">
+      <Card title="Apariencia" icon="sun" storageKey="settings_appearance">
         <SegmentedControl<ThemePref>
           label="Tema"
           hint="«Sistema» usa el mismo tema que tu teléfono o computadora."

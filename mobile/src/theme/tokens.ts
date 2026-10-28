@@ -21,6 +21,8 @@ export interface Colors {
   warning: string;
   /** Unico acento: marcador amarillo, reservado para "lo que toca ahora". */
   highlight: string;
+  /** Fondo tenue del acento: la tarea de ahora sin bloque solido. */
+  highlightSoft: string;
   onHighlight: string;
   /** Paginas de revision de la hoja de llamado: tinte de la cabecera de Inicio. */
   dayMorning: string;
@@ -50,6 +52,7 @@ export const darkColors: Colors = {
   success: "#7fd3a6",
   warning: "#f0bd68",
   highlight: "#ffb36b",
+  highlightSoft: "#3a2b2a",
   onHighlight: "#2a1708",
   dayMorning: "#2a2140",
   dayAfternoon: "#3a2230",
@@ -73,6 +76,7 @@ export const lightColors: Colors = {
   success: "#1f7a4d",
   warning: "#8a5a00",
   highlight: "#ffb36b",
+  highlightSoft: "#fff1e3",
   onHighlight: "#2a1708",
   dayMorning: "#ffe9d2",
   dayAfternoon: "#fde0e4",
