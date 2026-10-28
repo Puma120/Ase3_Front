@@ -16,6 +16,8 @@ export interface TaskItem {
   title: string;
   notes: string;
   due: string | null;
+  start?: string | null; // ventana agendada (solo tareas creadas por Oportuno)
+  end?: string | null;
 }
 
 export interface FreeSlot {
@@ -69,6 +71,7 @@ export function getFreeSlots(durationMinutes = 25, windowHours = 6): Promise<Fre
       window_start: start.toISOString(),
       window_end: end.toISOString(),
       duration_minutes: durationMinutes,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || undefined,
     }),
   });
 }

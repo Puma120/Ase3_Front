@@ -5,6 +5,7 @@ import * as IntentLauncher from "expo-intent-launcher";
 import { Platform } from "react-native";
 
 import type { DeviceCommand } from "../services/chatApi";
+import { setFocusMode } from "./focusMode";
 
 async function setAlarm(payload: Record<string, unknown>): Promise<string> {
   if (Platform.OS !== "android") return "Las alarmas solo se pueden crear desde la app de Android.";
@@ -31,10 +32,7 @@ export async function runDeviceCommands(commands: DeviceCommand[]): Promise<stri
   const notes: string[] = [];
   for (const { command, payload } of commands) {
     if (command === "set_alarm") notes.push(await setAlarm(payload));
-    else if (command === "set_focus_mode")
-      // Cambiar No Molestar exige codigo nativo propio; hasta tenerlo se avisa
-      // en vez de fingir que se activo.
-      notes.push("Todavía no puedo activar No molestar yo solo. Actívalo desde los ajustes del teléfono > No molestar.");
+    else if (command === "set_focus_mode") notes.push(await setFocusMode(payload.enabled === true));
   }
   return notes;
 }

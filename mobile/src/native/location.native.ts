@@ -32,6 +32,7 @@ TaskManager.defineTask<{ locations: Location.LocationObject[] }>(TASK_NAME, asyn
 export function isLocationSupported(): boolean {
   return Platform.OS === "android";
 }
+export const isChatLocationSupported = isLocationSupported;
 
 /** "Usar mi ubicacion en el chat": solo en primer plano, al enviar un mensaje. */
 export function isChatLocationEnabled(): boolean {

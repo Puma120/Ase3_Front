@@ -2,6 +2,8 @@
 // gateway, /agent/chat). Contrato espejado de
 // back/agent_service/app/schemas/chat.py.
 
+import { Platform } from "react-native";
+
 import { getChatLocation } from "../native/location";
 import { apiFetch } from "./apiClient";
 
@@ -32,7 +34,7 @@ export async function sendMessage(message: string, onboarding = false): Promise<
   const where = await getChatLocation();
   return apiFetch<ChatReply>("/agent/chat", {
     method: "POST",
-    body: JSON.stringify({ message, timezone: deviceTimezone(), lat: where?.lat, lng: where?.lng, onboarding }),
+    body: JSON.stringify({ message, timezone: deviceTimezone(), lat: where?.lat, lng: where?.lng, onboarding, client: Platform.OS }),
   });
 }
 

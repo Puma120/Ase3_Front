@@ -53,6 +53,10 @@ const QUICK_ACTIONS: { label: string; icon: IconName; prompt: string }[] = [
 const startPrompt = (title: string) =>
   `Quiero empezar «${title}». Dime cuánto tiempo toma más o menos, qué necesito tener a la mano y solo el primer paso.`;
 
+// Tarea sin hora: se le pide al agente que la integre en un hueco del horario.
+const schedulePrompt = (task: TaskItem) =>
+  `Agenda la tarea «${task.title}» (id ${task.id}) en un hueco libre de mi horario: estima cuánto toma, busca el hueco con find_free_slots (hoy si cabe, si no mañana), muévela ahí con reschedule_task y dime a qué hora quedó.`;
+
 const DEFAULT_SUGGESTION = "¿No sabes por dónde empezar? Cuéntale al asistente qué tienes pendiente.";
 
 const OTHER_TASKS = 3;
@@ -61,6 +65,22 @@ const MAX_SLOTS = 2;
 
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+
+// "Hoy 15:00 – 15:30", "Mañana ..." o fecha corta; "Vencida" si su fin ya paso.
+function whenLabel(task: TaskItem): string | null {
+  if (!task.start || !task.end) return null;
+  const day = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const start = new Date(task.start);
+  const diff = Math.round((day(start) - day(new Date())) / 86_400_000);
+  const label =
+    diff === 0
+      ? "Hoy"
+      : diff === 1
+        ? "Mañana"
+        : start.toLocaleDateString("es", { weekday: "short", day: "numeric", month: "short" });
+  const late = new Date(task.end).getTime() < Date.now() ? " · Vencida" : "";
+  return `${label} ${fmtTime(task.start)} – ${fmtTime(task.end)}${late}`;
+}
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -118,6 +138,8 @@ export function HomeDashboard({
       ...(c.shadow ? { boxShadow: c.shadow } : null),
     },
     nextLabel: { color: c.text, fontSize: t.sm, fontWeight: "800" },
+    taskWhen: { color: c.textMuted, fontSize: t.sm, ...mono("500") },
+    optionalLabel: { color: c.textMuted, fontSize: t.sm, fontWeight: "800", marginTop: spacing.xs },
     nextTitle: { flex: 1, color: c.text, fontSize: t.lg, fontWeight: "800" },
     row: {
       flexDirection: "row",
@@ -314,6 +336,7 @@ export function HomeDashboard({
 
   function renderTaskRow(task: TaskItem, big = false) {
     const done = doneIds.has(task.id);
+    const when = whenLabel(task);
     return (
       <View key={task.id} style={styles.row}>
         <Pressable
@@ -330,10 +353,24 @@ export function HomeDashboard({
             color={done ? colors.success : big ? colors.text : colors.textMuted}
           />
         </Pressable>
-        <Text style={[big ? styles.nextTitle : styles.rowText, done && styles.rowTextDone]} numberOfLines={2}>
-          {task.title}
-        </Text>
-        {!done && (
+        <View style={{ flex: 1 }}>
+          {!!when && !big && <Text style={styles.taskWhen}>{when}</Text>}
+          <Text style={[big ? styles.nextTitle : styles.rowText, done && styles.rowTextDone]} numberOfLines={2}>
+            {task.title}
+          </Text>
+        </View>
+        {!done && !when && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Agendar en un hueco libre: ${task.title}`}
+            onPress={() => onQuickAction(schedulePrompt(task))}
+            style={styles.doneBtn}
+          >
+            <Icon name="clock" size={16} color={colors.text} />
+            <Text style={styles.undoText}>Agendar</Text>
+          </Pressable>
+        )}
+        {!done && !!when && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Completar: ${task.title}`}
@@ -361,26 +398,45 @@ export function HomeDashboard({
 
   function renderTasks(list: TaskItem[]) {
     if (list.length === 0) return <MutedText>No tienes tareas pendientes.</MutedText>;
-    const next = list.find((t) => !doneIds.has(t.id));
-    const others = list.filter((t) => t !== next);
+    // Con hora (la mas proxima primero) van como agenda; sin hora son opcionales.
+    const scheduled = list.filter((t) => t.start && t.end).sort((a, b) => a.start!.localeCompare(b.start!));
+    const optional = list.filter((t) => !(t.start && t.end));
+    const next = scheduled.find((t) => !doneIds.has(t.id));
+    const others = scheduled.filter((t) => t !== next);
     const shown = others.slice(0, OTHER_TASKS);
     const hiddenCount = others.length - shown.length;
+    const shownOptional = optional.slice(0, OTHER_TASKS);
+    const hiddenOptional = optional.length - shownOptional.length;
     return (
       <>
         {next ? (
           <View style={styles.next}>
             <Text style={styles.nextLabel}>Siguiente tarea</Text>
+            <Text style={styles.taskWhen}>{whenLabel(next)}</Text>
             {renderTaskRow(next, true)}
             <Button label="Empezar" icon="play" onPress={() => onQuickAction(startPrompt(next.title))} />
           </View>
+        ) : scheduled.length > 0 ? (
+          <MutedText>Terminaste todas tus tareas con hora.</MutedText>
         ) : (
-          <MutedText>Terminaste todas tus tareas pendientes.</MutedText>
+          <MutedText>No tienes tareas con hora.</MutedText>
         )}
         {shown.map((t) => renderTaskRow(t))}
         {hiddenCount > 0 && (
           <MutedText>
             Y {hiddenCount} {hiddenCount === 1 ? "tarea más" : "tareas más"}.
           </MutedText>
+        )}
+        {optional.length > 0 && (
+          <>
+            <Text style={styles.optionalLabel}>Opcionales, sin hora</Text>
+            {shownOptional.map((t) => renderTaskRow(t))}
+            {hiddenOptional > 0 && (
+              <MutedText>
+                Y {hiddenOptional} {hiddenOptional === 1 ? "opcional más" : "opcionales más"}.
+              </MutedText>
+            )}
+          </>
         )}
         {!!taskError && (
           <Text accessibilityRole="alert" style={styles.error}>
@@ -557,8 +613,10 @@ export function HomeDashboard({
       </Card>
 
       <Card title="Próximos huecos libres" icon="clock">
-        {body(slots, 2, (list) =>
-          list.length === 0 ? (
+        {body(slots, 2, (all) => {
+          // La lista pudo cargarse hace rato: se ocultan los huecos que ya no dan 25 min.
+          const list = all.filter((s) => new Date(s.end).getTime() - Date.now() >= 25 * 60_000);
+          return list.length === 0 ? (
             <MutedText>No hay huecos de 25 minutos en las próximas 6 horas.</MutedText>
           ) : (
             list.slice(0, MAX_SLOTS).map((s) => (
@@ -568,7 +626,7 @@ export function HomeDashboard({
                 accessibilityLabel={`Agendar 25 minutos de enfoque a las ${fmtTime(s.start)}`}
                 onPress={() =>
                   onQuickAction(
-                    `Agenda un bloque de enfoque de 25 minutos a las ${fmtTime(s.start)} y pregúntame en qué tarea lo quiero usar.`,
+                    `Agenda un bloque de enfoque de 25 minutos dentro de mi hueco libre de ${fmtTime(s.start)} a ${fmtTime(s.end)} (si ${fmtTime(s.start)} ya pasó, empieza al siguiente múltiplo de 5 minutos desde ahora) y pregúntame en qué tarea lo quiero usar.`,
                   )
                 }
                 style={({ pressed }) => [styles.slot, pressed && { opacity: 0.8 }]}
@@ -579,8 +637,8 @@ export function HomeDashboard({
                 <Text style={styles.slotHint}>Agendar</Text>
               </Pressable>
             ))
-          ),
-        )}
+          );
+        })}
       </Card>
 
       <Collapsible

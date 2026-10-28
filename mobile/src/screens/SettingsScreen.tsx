@@ -10,12 +10,13 @@ import { SaveBadge, SaveError, useSaveState } from "../components/SaveStatus";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { Stepper } from "../components/Stepper";
 import { TextField } from "../components/TextField";
-import { isFocusModeSupported } from "../native/focusMode";
+import { ensureFocusAccess, isFocusModeSupported } from "../native/focusMode";
 import {
   disableLocation,
   enableLocation,
   setChatLocation,
   isChatLocationEnabled,
+  isChatLocationSupported,
   isLocationEnabled,
   isLocationSupported,
   stopLocationTracking,
@@ -421,7 +422,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
               )}
             </>
           )}
-          {isLocationSupported() &&
+          {isChatLocationSupported() &&
             switchRow(
               "Usar mi ubicación en el chat",
               "Al preguntar por lugares o trayectos, el asistente sabe dónde estás sin que se lo digas. Solo se usa al enviar un mensaje.",
@@ -438,9 +439,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
           {isFocusModeSupported() &&
             switchRow(
               "Modo enfoque",
-              "Activa No molestar durante tus bloques de trabajo.",
+              "Activa No molestar solo durante tareas que piden concentración (estudiar, hacer tarea, meditar). Android te pide darle acceso a No molestar la primera vez.",
               s.focus_mode_enabled,
-              (v) => saveSettings({ focus_mode_enabled: v }, alertsSave),
+              (v) => {
+                if (v) ensureFocusAccess();
+                saveSettings({ focus_mode_enabled: v }, alertsSave);
+              },
             )}
           <SaveError state={alertsSave.state} />
         </Card>

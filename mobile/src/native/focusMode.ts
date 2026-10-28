@@ -1,8 +1,11 @@
-import { Platform } from "react-native";
-
-// Native-only entry point for the "Control de Enfoque" tool
-// (back/tools_service/app/tools/device_tool.py). Sin API pública en iOS
-// (ver project_map.md) — gateado a Android, no soportado en front/pwa.
+// Web (PWA): el navegador no puede cambiar No molestar. La version nativa vive
+// en focusMode.native.ts (Metro la prefiere).
 export function isFocusModeSupported(): boolean {
-  return Platform.OS === "android";
+  return false;
+}
+
+export function ensureFocusAccess(): void {}
+
+export async function setFocusMode(_enabled: boolean): Promise<string> {
+  return "Esa acción solo está disponible en la app de Android.";
 }

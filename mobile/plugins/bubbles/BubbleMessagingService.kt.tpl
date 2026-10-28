@@ -23,12 +23,17 @@ import expo.modules.notifications.service.ExpoFirebaseMessagingService
 
 /**
  * Los mensajes con data.bubble == "1" se muestran como notificacion de
- * conversacion con burbuja; el resto (avisos normales, token FCM) sigue en
- * expo-notifications.
+ * conversacion con burbuja; los que traen data.focus ("on"/"off") cambian No
+ * molestar sin mostrar nada (tareas de enfoque); el resto (avisos normales,
+ * token FCM) sigue en expo-notifications.
  */
 class BubbleMessagingService : ExpoFirebaseMessagingService() {
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
     val data = remoteMessage.data
+    data["focus"]?.let {
+      FocusController.apply(this, it == "on")
+      return
+    }
     if (data["bubble"] == "1" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       BubbleNotifier.show(this, data["title"].orEmpty(), data["body"].orEmpty(), data["sound"] == "1")
       return
@@ -153,5 +158,27 @@ object BubbleNotifier {
     drawable.setBounds(0, 0, size, size)
     drawable.draw(Canvas(bitmap))
     return Icon.createWithAdaptiveBitmap(bitmap)
+  }
+}
+
+// No molestar automatico. Solo apaga lo que el mismo prendio: si el usuario ya
+// tenia No molestar activo por su cuenta, no lo toca ni al empezar ni al terminar.
+// Sin el acceso a No molestar concedido en Ajustes del sistema no hace nada.
+object FocusController {
+  private const val PREFS = "oportuno_focus"
+  private const val KEY_ACTIVE = "we_enabled"
+
+  fun apply(context: Context, enable: Boolean) {
+    val manager = context.getSystemService(NotificationManager::class.java)
+    if (!manager.isNotificationPolicyAccessGranted) return
+    val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    if (enable) {
+      if (manager.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL) return
+      manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+      prefs.edit().putBoolean(KEY_ACTIVE, true).apply()
+    } else if (prefs.getBoolean(KEY_ACTIVE, false)) {
+      manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+      prefs.edit().putBoolean(KEY_ACTIVE, false).apply()
+    }
   }
 }
