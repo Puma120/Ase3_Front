@@ -166,9 +166,8 @@ export async function openBubbleSettings(): Promise<void> {
   }
 }
 
-/** Primera apertura: una sola vez ofrece activar los avisos y, si el sistema
- * lo permite, la burbuja de chat. Es el usuario quien acepta; el permiso del
- * sistema solo se pide si pulsa "Activar". Despues vive en Ajustes. */
+/** Primera apertura: una sola vez ofrece activar los avisos. Es el usuario quien acepta; el permiso del
+ * sistema solo se pide si pulsa "Activar". La burbuja se activa en Ajustes. */
 const OFFERED_KEY = "ase3_push_offered";
 
 export async function offerPushOnce(): Promise<void> {
@@ -188,11 +187,7 @@ export async function offerPushOnce(): Promise<void> {
     );
 
   if (!(await ask("Avisos en este telefono", "Recibe tus recordatorios y avisos del agente como notificacion. Por defecto no suenan.", "Activar"))) return;
-  if (!(await enablePush(false))) return;
-  if (!isBubbleSupported()) return;
-  if (!(await ask("Burbuja de chat", "Muestra los recordatorios en una burbuja flotante tipo Messenger. Android te llevara a sus ajustes para permitirlas.", "Permitir"))) return;
-  await setPushBubble(true);
-  await openBubbleSettings();
+  await enablePush(false);
 }
 
 // Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la

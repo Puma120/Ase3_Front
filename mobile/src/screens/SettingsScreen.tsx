@@ -195,6 +195,8 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
   function togglePushBubble(bubble: boolean) {
     setPushBubbleState(bubble);
     void alertsSave.track(() => setPushBubble(bubble), SAVE_ERROR);
+    // Android no deja a la app activarlas: al encender se lleva al usuario a su pantalla de burbujas.
+    if (bubble) void openBubbleSettings();
   }
 
   function toggleChatLocation(on: boolean) {
@@ -375,7 +377,7 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
                 isBubbleSupported() &&
                 switchRow(
                   "Avisos en burbuja",
-                  "Cada aviso aparece como una burbuja de chat flotante sobre cualquier app, con el chat del asistente dentro.",
+                  "Cada aviso aparece como una burbuja de chat flotante sobre cualquier app, con el chat del asistente dentro. Al activarlo, Android te lleva a sus ajustes para permitirlas.",
                   pushBubble,
                   togglePushBubble,
                 )}
