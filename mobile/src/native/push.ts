@@ -3,9 +3,10 @@
 // Android y en iOS 16.4+ solo con la PWA agregada a la pantalla de inicio. La
 // version nativa vive en push.native.ts (Metro la prefiere).
 //
-// El navegador (iOS sobre todo) solo deja pedir el permiso dentro de un toque
-// del usuario: offerPushOnce lo pide en el primer toque tras abrir la app y
-// enablePush (interruptor de Ajustes) lo pide antes de cualquier await.
+// offerPushOnce pide el permiso al abrir la app (Android muestra su dialogo
+// del sistema); iOS solo lo acepta dentro de un toque del usuario, asi que ahi
+// se repite en el primer toque. enablePush (interruptor de Ajustes) lo pide
+// antes de cualquier await por la misma razon.
 import { getJSON, setJSON } from "../services/localStore";
 import { registerDevice, unregisterDevice } from "../services/proactiveApi";
 
@@ -84,19 +85,16 @@ export async function enablePush(sound: boolean): Promise<boolean> {
     savePushPrefs({ ...getPushPrefs(), enabled: false, sound });
     return false;
   }
-  try {
-    await register(sound);
-  } catch (err) {
-    // Sin token registrado no llega nada: el interruptor no debe quedar encendido.
-    savePushPrefs({ ...getPushPrefs(), enabled: false, sound });
-    throw err;
-  }
+  // Si falla no se guarda nada: la preferencia sigue apagada (o sin guardar) y
+  // offerPushOnce reintenta en la proxima apertura.
+  await register(sound);
   savePushPrefs({ ...getPushPrefs(), enabled: true, sound });
   return true;
 }
 
 export async function disablePush(): Promise<void> {
   savePushPrefs({ ...getPushPrefs(), enabled: false });
+  setJSON(OFFERED_KEY, true);
   await teardownPush();
 }
 
@@ -107,13 +105,21 @@ export async function setPushSound(sound: boolean): Promise<void> {
   if (prefs.enabled && currentToken) await registerDevice(currentToken, "web", sound, false);
 }
 
-/** Primera apertura: una sola vez pide el permiso en el primer toque del
- * usuario en la app. Si lo rechaza, despues vive en Ajustes. */
+/** Primera apertura: una sola vez pide el permiso del sistema y registra el
+ * token. Si ya estaba concedido (Android puede darlo al instalar la PWA) solo
+ * registra. Si el usuario lo rechaza, despues vive en Ajustes. */
 export async function offerPushOnce(): Promise<void> {
-  if (!isPushSupported() || getJSON<boolean>(OFFERED_KEY, false) || getPushPrefs().enabled) return;
-  if (Notification.permission !== "default") return;
+  if (!isPushSupported() || getJSON<boolean>(OFFERED_KEY, false)) return;
+  // Preferencia ya guardada: el usuario ya decidio (encendidos o apagados).
+  if (getJSON<Partial<PushPrefs> | null>(PREFS_KEY, null) !== null) return;
+  if (Notification.permission === "denied") return;
+  // Si register falla, OFFERED_KEY no se guarda y se reintenta en la proxima apertura.
+  await enablePush(false);
   setJSON(OFFERED_KEY, true);
-  document.addEventListener("pointerup", () => void enablePush(false).catch(() => {}), { once: true });
+  // iOS ignora la peticion sin un toque: el permiso sigue sin decidir.
+  if (Notification.permission === "default") {
+    document.addEventListener("pointerup", () => void enablePush(false).catch(() => {}), { once: true });
+  }
 }
 
 export function isBubbleSupported(): boolean {
