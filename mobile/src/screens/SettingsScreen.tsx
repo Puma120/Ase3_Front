@@ -506,12 +506,12 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
         </Card>
       )}
 
-      <Card title="Mi rutina" icon="calendar">
+      <Card title="Modo aprendizaje de rutinas" icon="calendar">
         <MutedText>
-          El asistente te pregunta tus horarios (despertar, clases o trabajo, horas ocupadas), los recuerda y los
-          agenda en tu calendario por el tiempo que elijas.
+          Platica con el asistente para que aprenda o actualice tu día: horarios de despertar y dormir, trabajo o
+          escuela, fines de semana, ejercicio y pasatiempos. Si ya tiene tu rutina, solo te pregunta qué cambió.
         </MutedText>
-        <Button variant="secondary" icon="calendar" label="Configurar mi rutina" onPress={onStartOnboarding} />
+        <Button variant="secondary" icon="calendar" label="Iniciar modo aprendizaje" onPress={onStartOnboarding} />
       </Card>
 
       <Card title="Apariencia" icon="sun" storageKey="settings_appearance">
