@@ -32,7 +32,8 @@ function isStandalone(): boolean {
 }
 
 const ua = navigator.userAgent;
-const IS_IOS = /iPad|iPhone|iPod/.test(ua);
+// iPadOS 13+ se identifica como Mac, pero es el unico "Mac" con pantalla tactil.
+const IS_IOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 
 function Icon({ d }: { d: string }) {
   return (
@@ -116,7 +117,7 @@ export default function InstallBar() {
     >
       <span style={{ flex: "1 1 180px" }}>
         {iosHelp
-          ? "En Safari toca Compartir y luego Agregar a pantalla de inicio."
+          ? "Toca Compartir (en Safari o Chrome) y luego Agregar a pantalla de inicio."
           : "Lleva Oportuno contigo en tu celular."}
       </span>
       {prompt && (
