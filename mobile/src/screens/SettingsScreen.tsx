@@ -10,6 +10,7 @@ import { SaveBadge, SaveError, useSaveState } from "../components/SaveStatus";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { Stepper } from "../components/Stepper";
 import { TextField } from "../components/TextField";
+import { isAppUpdateSupported, updateApp } from "../native/appUpdate";
 import { ensureFocusAccess, isFocusModeSupported } from "../native/focusMode";
 import {
   disableLocation,
@@ -111,6 +112,8 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
 
   const [timezone, setTimezone] = useState("");
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [updateBusy, setUpdateBusy] = useState(false);
+  const [updateMsg, setUpdateMsg] = useState("");
   const [googleError, setGoogleError] = useState("");
   const [pushOn, setPushOn] = useState(() => getPushPrefs().enabled);
   const [pushSound, setPushSoundState] = useState(() => getPushPrefs().sound);
@@ -197,6 +200,13 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
     void alertsSave.track(() => setPushBubble(bubble), SAVE_ERROR);
     // Android no deja a la app activarlas: al encender se lleva al usuario a su pantalla de burbujas.
     if (bubble) void openBubbleSettings();
+  }
+
+  async function checkUpdate() {
+    setUpdateBusy(true);
+    setUpdateMsg("");
+    setUpdateMsg(await updateApp());
+    setUpdateBusy(false);
   }
 
   function toggleChatLocation(on: boolean) {
@@ -587,6 +597,20 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
             <SaveError state={agentSave.state} />
           </Card>
         </Collapsible>
+      )}
+
+      {isAppUpdateSupported() && (
+        <Card title="Actualizar la app" icon="refresh">
+          <MutedText>Descarga los últimos cambios sin reinstalar. La app se reinicia sola al terminar.</MutedText>
+          <Button
+            variant="secondary"
+            icon="refresh"
+            label={updateBusy ? "Buscando..." : "Buscar actualizaciones"}
+            onPress={checkUpdate}
+            disabled={updateBusy}
+          />
+          {!!updateMsg && <MutedText>{updateMsg}</MutedText>}
+        </Card>
       )}
 
       <Button variant="secondary" icon="logout" label="Cerrar sesión" onPress={handleLogout} />
