@@ -3,6 +3,7 @@ import { BackHandler, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, IconName } from "../components/Icon";
+import { UpdatePrompt } from "../components/UpdatePrompt";
 import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 import { resumeLocation } from "../native/location";
@@ -51,6 +52,8 @@ export function HomeScreen() {
     content: { flex: 1 },
     // Chat y Ajustes arrancan bajo la barra de estado; Inicio la cubre con su cielo.
     padded: { paddingTop: insets.top },
+    // El onboarding no tiene barra de pestanas: reserva el margen de la barra del sistema (3 botones).
+    paddedFull: { paddingTop: insets.top, paddingBottom: insets.bottom },
     hidden: { display: "none" },
     tabList: { flex: 1, flexDirection: "row" },
     tabBar: {
@@ -153,7 +156,7 @@ export function HomeScreen() {
 
   if (onboarding)
     return (
-      <View style={[styles.flex, styles.padded]}>
+      <View style={[styles.flex, styles.paddedFull]}>
         <ChatScreen
           active
           outgoing={null}
@@ -187,6 +190,8 @@ export function HomeScreen() {
           <SettingsScreen active={tab === "settings"} onStartOnboarding={() => setOnboarding(true)} />
         </View>
       </View>
+
+      <UpdatePrompt />
 
       <View role="navigation" aria-label="Pantallas de la app" style={styles.tabBar}>
         <View accessibilityRole="tablist" style={styles.tabList}>

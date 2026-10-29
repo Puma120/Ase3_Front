@@ -47,7 +47,7 @@ const WELCOME: ChatMessage = {
 const ONBOARDING_WELCOME: ChatMessage = {
   id: "onboarding-welcome",
   role: "assistant",
-  text: "Hola, soy Oportuno. Para ayudarte de verdad necesito conocer tu rutina.\n\nVamos a platicar, **una pregunta a la vez**, hasta que tenga tu día completo:\n- a qué hora despiertas y duermes, entre semana y en fin de semana\n- tu trabajo o escuela: horarios y hasta cuándo\n- tus fines de semana, ejercicio y pasatiempos\n- traslados, comidas y hábitos que quieras que recuerde\n\nLo recordaré y agendaré tus horarios en el calendario por el tiempo que me digas.",
+  text: "Hola, soy Oportuno. Conocer tu rutina me ayuda a ayudarte mejor, pero es opcional: puedes omitirlo y hacerlo después desde Ajustes.\n\nSi quieres empezar, vamos a platicar, **una pregunta a la vez**, hasta que tenga tu día completo:\n- a qué hora despiertas y duermes, entre semana y en fin de semana\n- tu trabajo o escuela: horarios y hasta cuándo\n- tus fines de semana, ejercicio y pasatiempos\n- traslados, comidas y hábitos que quieras que recuerde\n\nLo recordaré y agendaré tus horarios en el calendario por el tiempo que me digas.",
 };
 
 // Atajos para arrancar sin pensar que escribir (menos carga de decision).
@@ -331,6 +331,13 @@ export function ChatScreen({
             style={({ pressed }) => [styles.chip, pressed && { opacity: 0.8 }]}
           >
             <Text style={styles.chipText}>Empezar</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onboarding.onSkip}
+            style={({ pressed }) => [styles.chip, pressed && { opacity: 0.8 }]}
+          >
+            <Text style={styles.chipText}>Omitir por ahora</Text>
           </Pressable>
         </View>
       );

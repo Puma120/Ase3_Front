@@ -6,6 +6,16 @@ export function isAppUpdateSupported(): boolean {
   return Updates.isEnabled;
 }
 
+/** true si hay una version nueva publicada. Nunca lanza: sin red o sin canal, false. */
+export async function hasAppUpdate(): Promise<boolean> {
+  if (!Updates.isEnabled) return false;
+  try {
+    return (await Updates.checkForUpdateAsync()).isAvailable;
+  } catch {
+    return false;
+  }
+}
+
 /** Busca, descarga y aplica la actualizacion. Si ya esta al dia devuelve un
  * mensaje; si hay una nueva, reinicia la app (no regresa). */
 export async function updateApp(): Promise<string> {

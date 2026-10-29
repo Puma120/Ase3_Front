@@ -4,6 +4,10 @@ export function isAppUpdateSupported(): boolean {
   return false;
 }
 
+export async function hasAppUpdate(): Promise<boolean> {
+  return false;
+}
+
 export async function updateApp(): Promise<string> {
   return "";
 }
