@@ -6,7 +6,7 @@ import { AuthScreen } from "./screens/AuthScreen";
 import { ChatScreen } from "./screens/ChatScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { setToken } from "./services/authStore";
-import { consumeWebCallbackToken } from "./services/googleAuth";
+import { consumeWebCallbackToken, listenForLoginLink } from "./services/googleAuth";
 import { isLoggedIn, setLoggedIn, subscribe } from "./services/session";
 import { getToken } from "./services/authStore";
 import { useAppFonts } from "./theme/useAppFonts";
@@ -34,7 +34,15 @@ export default function App({ bubble = false }: { bubble?: boolean }) {
 
   useEffect(() => {
     if (loggedIn) setLoggedIn(true); // sincroniza el store si habia token guardado
-    return subscribe(() => setLoggedInState(isLoggedIn()));
+    const stopListening = listenForLoginLink((token) => {
+      setToken(token);
+      setLoggedIn(true);
+    });
+    const unsubscribe = subscribe(() => setLoggedInState(isLoggedIn()));
+    return () => {
+      stopListening();
+      unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

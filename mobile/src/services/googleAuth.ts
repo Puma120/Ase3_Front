@@ -2,7 +2,7 @@
 // react-native-web: el backend hace todo el intercambio OAuth (ver
 // auth_service/app/api/routes/google_auth.py), este archivo solo abre la URL
 // correcta segun la plataforma y extrae el token de la redireccion de vuelta.
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 
 import { GATEWAY_URL } from "./apiClient";
 
@@ -29,6 +29,22 @@ export async function startGoogleLogin(): Promise<string | null> {
   );
   if (result.type !== "success") return null;
   return extractToken(result.url);
+}
+
+/** Solo nativo: recoge el token del enlace ase3agentetdah://auth/callback?token=...
+ * aunque openAuthSessionAsync no haya devuelto `success` (Android puede reiniciar
+ * o dormir la app mientras el usuario esta en el navegador y la promesa se pierde,
+ * lo que obligaba a iniciar sesion dos veces). Devuelve la funcion para dejar de escuchar. */
+export function listenForLoginLink(onToken: (token: string) => void): () => void {
+  if (Platform.OS === "web") return () => {};
+  const handle = (url: string | null) => {
+    if (!url || !url.startsWith(MOBILE_REDIRECT_URI)) return;
+    const token = extractToken(url);
+    if (token) onToken(token);
+  };
+  Linking.getInitialURL().then(handle).catch(() => {});
+  const sub = Linking.addEventListener("url", (e) => handle(e.url));
+  return () => sub.remove();
 }
 
 /** Solo aplica en web: al volver de Google, App.tsx llama esto una vez al
