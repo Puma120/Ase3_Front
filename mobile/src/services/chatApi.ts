@@ -46,6 +46,27 @@ export const getOnboarding = () =>
 
 export const skipOnboarding = () => apiFetch<{ status: OnboardingStatus }>("/agent/onboarding/skip", { method: "POST" });
 
+// Agendar en el calendario la rutina que el agente ya guardo (/agent/calendar-sync).
+export type CalendarSyncStatus = "none" | "pending" | "done" | "skipped";
+
+export const getCalendarSync = () =>
+  apiFetch<{ status: CalendarSyncStatus }>("/agent/calendar-sync").then((r) => r.status);
+
+export const skipCalendarSync = () =>
+  apiFetch<{ status: CalendarSyncStatus }>("/agent/calendar-sync/skip", { method: "POST" });
+
+/** Pide al agente agendar la rutina guardada hasta `until` (YYYY-MM-DD). */
+export const syncRoutine = (until: string) =>
+  apiFetch<ChatReply>("/agent/chat", {
+    method: "POST",
+    body: JSON.stringify({
+      message: `Agenda mi rutina en mi calendario hasta el ${until}.`,
+      timezone: deviceTimezone(),
+      calendar_sync_until: until,
+      client: Platform.OS,
+    }),
+  });
+
 export interface HistoryMessage {
   role: "user" | "assistant";
   content: string;

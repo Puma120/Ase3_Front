@@ -3,6 +3,7 @@ import { BackHandler, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, IconName } from "../components/Icon";
+import { RoutineSyncPrompt } from "../components/RoutineSyncPrompt";
 import { UpdatePrompt } from "../components/UpdatePrompt";
 import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
@@ -192,6 +193,7 @@ export function HomeScreen() {
       </View>
 
       <UpdatePrompt />
+      <RoutineSyncPrompt />
 
       <View role="navigation" aria-label="Pantallas de la app" style={styles.tabBar}>
         <View accessibilityRole="tablist" style={styles.tabList}>
