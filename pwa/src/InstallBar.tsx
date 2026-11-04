@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 // build: al generar uno nuevo se actualiza VITE_APK_URL en Vercel y se redeploya.
 const APK_URL =
   import.meta.env.VITE_APK_URL ??
-  "https://expo.dev/artifacts/eas/BsIqFsUVuC1YnlDk4gRBtWqK0jm9GmPA7acOMo9RZDc.apk";
+  "https://expo.dev/artifacts/eas/mD3gqJHdwfz_PTP0VW3M-Er71yk6mORqzVj6-EWbXDo.apk";
 
 const DISMISS_KEY = "oportuno.installbar.dismissed";
 const DISMISS_MS = 7 * 24 * 60 * 60 * 1000;
