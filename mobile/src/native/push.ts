@@ -127,6 +127,8 @@ export function isBubbleSupported(): boolean {
 }
 export async function setPushBubble(_bubble: boolean): Promise<void> {}
 export async function openBubbleSettings(): Promise<void> {}
+export async function openBatterySettings(): Promise<void> {}
+export async function offerBatteryOnce(): Promise<void> {}
 
 // Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la
 // preferencia: al volver a entrar, resumePush registra el navegador otra vez.

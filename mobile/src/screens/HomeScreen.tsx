@@ -8,7 +8,7 @@ import { UpdatePrompt } from "../components/UpdatePrompt";
 import { minTouchTarget, radius, spacing } from "../theme/tokens";
 import { useStyles, useTheme } from "../theme/useTheme";
 import { resumeLocation } from "../native/location";
-import { offerPushOnce, resumePush } from "../native/push";
+import { offerBatteryOnce, offerPushOnce, resumePush } from "../native/push";
 import { refreshToken } from "../services/authApi";
 import { setToken } from "../services/authStore";
 import { getItem, setItem } from "../services/localStore";
@@ -94,7 +94,7 @@ export function HomeScreen() {
     // Renovacion deslizante: cada vez que entran, el JWT vuelve a tener 30 dias.
     refreshToken().then(setToken).catch(() => {});
     heartbeat().catch(() => {});
-    resumePush().then(offerPushOnce).catch(() => {});
+    resumePush().then(offerPushOnce).then(offerBatteryOnce).catch(() => {});
     resumeLocation().catch(() => {});
   }, []);
 

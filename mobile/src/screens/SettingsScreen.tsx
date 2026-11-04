@@ -28,6 +28,7 @@ import {
   getPushPrefs,
   isBubbleSupported,
   isPushSupported,
+  openBatterySettings,
   openBubbleSettings,
   setPushBubble,
   setPushSound,
@@ -375,6 +376,19 @@ export function SettingsScreen({ active, onStartOnboarding }: { active: boolean;
                 "Te llegan aunque la app esté cerrada. Al activarlo, Android te pide permiso.",
                 pushOn,
                 togglePush,
+              )}
+              {Platform.OS === "android" && (
+                <>
+                  <MutedText>
+                    Para que los avisos lleguen a tiempo, en Batería elige "Sin restricciones" para Oportuno.
+                  </MutedText>
+                  <Button
+                    variant="secondary"
+                    icon="settings"
+                    label="Abrir ajustes de batería"
+                    onPress={() => void openBatterySettings()}
+                  />
+                </>
               )}
               {pushOn &&
                 switchRow(

@@ -190,6 +190,39 @@ export async function offerPushOnce(): Promise<void> {
   await enablePush(false);
 }
 
+// Android recorta en segundo plano las apps con ahorro de bateria (Xiaomi, Samsung...): los
+// avisos y el seguimiento llegan tarde o nunca. La app no puede quitar la restriccion; lleva
+// al usuario a la ficha de la app, donde esta "Bateria" / "Ahorro de bateria" > "Sin restricciones".
+export async function openBatterySettings(): Promise<void> {
+  try {
+    await IntentLauncher.startActivityAsync("android.settings.APPLICATION_DETAILS_SETTINGS", {
+      data: "package:com.ase3.agentetdah",
+    });
+  } catch {
+    await Linking.openSettings();
+  }
+}
+
+const BATTERY_OFFERED_KEY = "ase3_battery_offered";
+
+/** Una sola vez, en Android: explica por que conviene "Sin restricciones" y ofrece abrir los ajustes. */
+export async function offerBatteryOnce(): Promise<void> {
+  if (Platform.OS !== "android" || getJSON<boolean>(BATTERY_OFFERED_KEY, false)) return;
+  setJSON(BATTERY_OFFERED_KEY, true);
+  const open = await new Promise<boolean>((resolve) =>
+    Alert.alert(
+      "Para que Oportuno funcione siempre",
+      "Tu teléfono puede cerrar la app en segundo plano y tus avisos llegarían tarde. Abre Batería y elige \"Sin restricciones\" para esta app.",
+      [
+        { text: "Ahora no", style: "cancel", onPress: () => resolve(false) },
+        { text: "Abrir ajustes", onPress: () => resolve(true) },
+      ],
+      { cancelable: true, onDismiss: () => resolve(false) },
+    ),
+  );
+  if (open) await openBatterySettings();
+}
+
 // Se llama antes de borrar el JWT (el DELETE necesita sesion). No cambia la
 // preferencia: al volver a entrar, resumePush registra el dispositivo otra vez.
 export async function teardownPush(): Promise<void> {
